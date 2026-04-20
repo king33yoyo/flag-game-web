@@ -176,6 +176,216 @@
       font-size: 0.85rem;
       color: #6B7280;
     }
+
+    /* ===== Slot Pulse Animation ===== */
+    @keyframes slot-pulse {
+      0%, 100% { border-color: #818CF8; }
+      50% { border-color: #C7D2FE; }
+    }
+
+    /* ===== Game Page ===== */
+    .game-header {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      background: #FFFFFF;
+      box-shadow: 0 2px 12px rgba(79, 70, 229, 0.08);
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    .game-header .region-name {
+      font-family: 'Baloo 2', cursive;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #1E1B4B;
+    }
+
+    .game-header .score-display {
+      font-family: 'Baloo 2', cursive;
+      font-weight: 600;
+      font-size: 1rem;
+      color: #4F46E5;
+    }
+
+    .game-header .timer-display {
+      font-family: 'Baloo 2', cursive;
+      font-weight: 600;
+      font-size: 1rem;
+      color: #6B7280;
+    }
+
+    .map-container {
+      flex: 1;
+      position: relative;
+      background: linear-gradient(135deg, #E0E7FF, #DBEAFE, #CFFAFE);
+      overflow: hidden;
+    }
+
+    .map-container #map-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .map-container #flag-markers,
+    .map-container #slot-markers {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .slot-marker {
+      position: absolute;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.9);
+      border: 3px solid #818CF8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Baloo 2', cursive;
+      font-weight: 700;
+      font-size: 16px;
+      color: #818CF8;
+      transform: translate(-50%, -50%);
+      animation: slot-pulse 2s ease-in-out infinite;
+      pointer-events: auto;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15);
+    }
+
+    .slot-marker.filled {
+      background: #4F46E5;
+      border-color: #4F46E5;
+      color: #FFFFFF;
+      animation: none;
+      font-size: 20px;
+    }
+
+    .slot-marker.wrong {
+      background: #FEE2E2;
+      border-color: #EF4444;
+      color: #EF4444;
+      animation: none;
+    }
+
+    .flag-tray {
+      height: 80px;
+      background: #FFFFFF;
+      border-top: 3px solid #E0E7FF;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
+      flex-shrink: 0;
+      box-shadow: 0 -2px 12px rgba(79, 70, 229, 0.06);
+    }
+
+    .tray-label {
+      writing-mode: vertical-rl;
+      font-family: 'Baloo 2', cursive;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #818CF8;
+      letter-spacing: 2px;
+      user-select: none;
+    }
+
+    .flag-chips-container {
+      flex: 1;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 4px 0;
+      align-items: center;
+    }
+
+    .flag-chips-container::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .flag-chips-container::-webkit-scrollbar-thumb {
+      background: #C7D2FE;
+      border-radius: 2px;
+    }
+
+    .flag-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: #F5F3FF;
+      border: 2px solid rgba(255, 255, 255, 0.7);
+      border-radius: 14px;
+      cursor: grab;
+      user-select: none;
+      white-space: nowrap;
+      font-family: 'Baloo 2', cursive;
+      font-weight: 500;
+      font-size: 0.85rem;
+      color: #1E1B4B;
+      box-shadow:
+        4px 4px 10px rgba(79, 70, 229, 0.08),
+        inset -2px -2px 4px rgba(0, 0, 0, 0.02),
+        inset 2px 2px 4px rgba(255, 255, 255, 0.6);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .flag-chip:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        4px 6px 14px rgba(79, 70, 229, 0.12),
+        inset -2px -2px 4px rgba(0, 0, 0, 0.02),
+        inset 2px 2px 4px rgba(255, 255, 255, 0.6);
+    }
+
+    .flag-chip:active {
+      cursor: grabbing;
+      transform: scale(0.95);
+    }
+
+    .flag-chip .chip-emoji {
+      font-size: 1.2rem;
+    }
+
+    .flag-chip.placed {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .country-path {
+      fill: #C7D2FE;
+      stroke: #818CF8;
+      stroke-width: 1.5;
+      stroke-linejoin: round;
+      cursor: pointer;
+      transition: fill 0.2s ease, stroke 0.2s ease;
+    }
+
+    .country-path:hover {
+      fill: #A5B4FC;
+      stroke: #6366F1;
+    }
+
+    .country-path.filled {
+      fill: #DDD6FE;
+      stroke: #A78BFA;
+      pointer-events: none;
+    }
+
+    .country-path.wrong-flash {
+      fill: #FCA5A5;
+      stroke: #EF4444;
+    }
   </style>
 </head>
 <body>
@@ -210,7 +420,20 @@
 
   <!-- Page: Game -->
   <section id="page-game" class="page">
-    <!-- Game content will be added later -->
+    <div class="game-header">
+      <div class="region-name" id="game-region-name"></div>
+      <div class="score-display" id="game-score">0 / 0</div>
+      <div class="timer-display" id="game-timer">00:00</div>
+    </div>
+    <div class="map-container" id="map-container">
+      <svg id="map-svg" preserveAspectRatio="xMidYMid meet"></svg>
+      <div id="flag-markers"></div>
+      <div id="slot-markers"></div>
+    </div>
+    <div class="flag-tray">
+      <div class="tray-label">拖拽区</div>
+      <div class="flag-chips-container" id="flag-chips"></div>
+    </div>
   </section>
 
   <!-- Page: Result -->
@@ -275,6 +498,374 @@
 
     // ===== Initialize =====
     renderContinentGrid();
+
+    // ===== Natural Earth Projection (lightweight inline) =====
+    function naturalEarthProject(lambda, phi) {
+      const phi2 = phi * phi;
+      const phi4 = phi2 * phi2;
+      const x = lambda * (0.8707 - 0.131979 * phi2 - 0.013791 * phi4);
+      const y = phi * (1.007226 + 0.015085 * phi2 - 0.044475 * phi4);
+      return [x, y];
+    }
+
+    function lonLatToXY(lon, lat, width, height) {
+      const lambda = lon * Math.PI / 180;
+      const phi = lat * Math.PI / 180;
+      const [x, y] = naturalEarthProject(lambda, phi);
+      const scale = Math.min(width / 5.6, height / 3.0);
+      const cx = width / 2;
+      const cy = height / 2;
+      return [cx + x * scale, cy - y * scale];
+    }
+
+    function geoJsonToSvgPath(geojson, width, height) {
+      const coords = geojson.coordinates[0];
+      const points = coords.map(([lon, lat]) => {
+        const [x, y] = lonLatToXY(lon, lat, width, height);
+        return `${x.toFixed(2)},${y.toFixed(2)}`;
+      });
+      return `M${points.join('L')}Z`;
+    }
+
+    // ===== Country GeoJSON Data =====
+    const COUNTRY_DATA = {
+      asia: [
+        { id:"CN", name:"中国", flag:"🇨🇳", centroid:[104,35], geo:{ type:"Polygon", coordinates:[[[73.5,40],[80,49],[87,49],[91,46],[96,43],[105,53],[112,45],[120,47],[125,42],[123,30],[121,25],[117,23],[110,18],[108,22],[100,22],[97,28],[87,28],[79,35],[73.5,40]]]} },
+        { id:"JP", name:"日本", flag:"🇯🇵", centroid:[138,36], geo:{ type:"Polygon", coordinates:[[[130,31],[132,34],[135,35],[137,37],[140,40],[142,43],[145,44],[145,42],[141,38],[140,36],[137,34],[135,33],[131,30],[130,31]]]} },
+        { id:"KR", name:"韩国", flag:"🇰🇷", centroid:[127,36], geo:{ type:"Polygon", coordinates:[[[126,34],[126.5,36],[127,37],[128,38],[129.5,38],[129.5,36],[128.5,35],[127,34],[126,34]]]} },
+        { id:"IN", name:"印度", flag:"🇮🇳", centroid:[79,22], geo:{ type:"Polygon", coordinates:[[[68,24],[70,28],[72,33],[77,35],[80,30],[84,28],[88,27],[89,26],[88,22],[84,16],[80,8],[77,8],[73,10],[72,16],[68,20],[68,24]]]} },
+        { id:"TH", name:"泰国", flag:"🇹🇭", centroid:[101,15], geo:{ type:"Polygon", coordinates:[[[98,20],[100,20],[103,20],[105,18],[105,15],[104,12],[102,10],[100,7],[98,10],[98,14],[98,20]]]} },
+        { id:"VN", name:"越南", flag:"🇻🇳", centroid:[108,16], geo:{ type:"Polygon", coordinates:[[[103,23],[105,22],[107,21],[109,18],[109,16],[108,12],[107,10],[106,11],[105,14],[104,17],[103,20],[103,23]]]} },
+        { id:"TR", name:"土耳其", flag:"🇹🇷", centroid:[35,39], geo:{ type:"Polygon", coordinates:[[[26,37],[28,41],[32,42],[36,42],[40,41],[44,40],[44,38],[42,37],[36,36],[30,36],[26,37]]]} },
+        { id:"SA", name:"沙特阿拉伯", flag:"🇸🇦", centroid:[45,24], geo:{ type:"Polygon", coordinates:[[[36,29],[38,28],[42,28],[47,30],[51,25],[55,22],[51,17],[45,13],[42,16],[38,20],[36,24],[36,29]]]} },
+        { id:"ID", name:"印度尼西亚", flag:"🇮🇩", centroid:[118,-2], geo:{ type:"Polygon", coordinates:[[[95,6],[98,4],[104,1],[106,-3],[108,-6],[112,-7],[115,-8],[118,-8],[120,-5],[117,-2],[115,0],[112,2],[108,4],[103,5],[98,6],[95,6]]]} },
+        { id:"MY", name:"马来西亚", flag:"🇲🇾", centroid:[110,4], geo:{ type:"Polygon", coordinates:[[[100,7],[102,6],[104,5],[104,3],[103,1],[101,1],[100,3],[100,7]]]} },
+        { id:"PH", name:"菲律宾", flag:"🇵🇭", centroid:[122,12], geo:{ type:"Polygon", coordinates:[[[117,18],[120,18],[122,16],[124,14],[126,11],[125,8],[122,7],[120,10],[119,13],[117,16],[117,18]]]} },
+        { id:"MN", name:"蒙古", flag:"🇲🇳", centroid:[105,47], geo:{ type:"Polygon", coordinates:[[[88,42],[91,46],[96,50],[105,52],[112,50],[117,48],[119,46],[116,42],[108,42],[100,42],[92,42],[88,42]]]} },
+        { id:"PK", name:"巴基斯坦", flag:"🇵🇰", centroid:[70,30], geo:{ type:"Polygon", coordinates:[[[62,25],[63,28],[64,32],[67,35],[70,37],[74,37],[77,35],[72,30],[70,25],[66,24],[62,25]]]} },
+        { id:"BD", name:"孟加拉国", flag:"🇧🇩", centroid:[90,24], geo:{ type:"Polygon", coordinates:[[[88,26],[89,26],[90,25],[92,22],[91,21],[89,22],[88,24],[88,26]]]} },
+        { id:"NP", name:"尼泊尔", flag:"🇳🇵", centroid:[84,28], geo:{ type:"Polygon", coordinates:[[[80,30],[82,30],[84,28],[86,28],[88,27],[87,27],[85,27],[83,27],[81,28],[80,30]]]} },
+        { id:"LK", name:"斯里兰卡", flag:"🇱🇰", centroid:[81,8], geo:{ type:"Polygon", coordinates:[[[80,10],[81,10],[82,8],[82,6],[81,6],[80,7],[80,10]]]} },
+        { id:"MM", name:"缅甸", flag:"🇲🇲", centroid:[96,20], geo:{ type:"Polygon", coordinates:[[[93,28],[96,28],[98,26],[100,22],[99,18],[97,16],[97,14],[96,16],[94,18],[93,22],[93,28]]]} },
+        { id:"KH", name:"柬埔寨", flag:"🇰🇭", centroid:[105,13], geo:{ type:"Polygon", coordinates:[[[103,14],[105,14],[107,13],[107,11],[106,10],[104,10],[103,11],[103,14]]]} },
+        { id:"AE", name:"阿联酋", flag:"🇦🇪", centroid:[54,24], geo:{ type:"Polygon", coordinates:[[[51,26],[53,26],[56,25],[56,24],[55,22],[52,23],[51,24],[51,26]]]} },
+        { id:"IQ", name:"伊拉克", flag:"🇮🇶", centroid:[44,33], geo:{ type:"Polygon", coordinates:[[[39,30],[40,33],[42,37],[45,37],[47,35],[48,32],[46,30],[44,29],[41,30],[39,30]]]} }
+      ],
+      europe: [
+        { id:"GB", name:"英国", flag:"🇬🇧", centroid:[-2,54], geo:{ type:"Polygon", coordinates:[[[ -6,50],[-5,52],[-4,54],[-3,56],[-5,58],[-3,58],[0,57],[2,53],[1,51],[-1,50],[-4,50],[-6,50]]]} },
+        { id:"FR", name:"法国", flag:"🇫🇷", centroid:[2,47], geo:{ type:"Polygon", coordinates:[[[-2,48],[2,51],[5,49],[8,49],[7,47],[7,44],[3,43],[0,43],[-1,44],[-2,47],[-2,48]]]} },
+        { id:"DE", name:"德国", flag:"🇩🇪", centroid:[10,51], geo:{ type:"Polygon", coordinates:[[[6,48],[6,51],[7,54],[9,55],[12,55],[14,54],[15,51],[13,48],[10,47],[8,48],[6,48]]]} },
+        { id:"ES", name:"西班牙", flag:"🇪🇸", centroid:[-4,40], geo:{ type:"Polygon", coordinates:[[[-9,43],[-2,44],[0,43],[3,42],[3,40],[0,37],[-2,37],[-5,36],[-8,37],[-9,39],[-9,43]]]} },
+        { id:"IT", name:"意大利", flag:"🇮🇹", centroid:[12,42], geo:{ type:"Polygon", coordinates:[[[7,44],[8,46],[12,47],[14,46],[16,42],[16,40],[15,38],[13,38],[11,37],[10,39],[8,41],[7,44]]]} },
+        { id:"PT", name:"葡萄牙", flag:"🇵🇹", centroid:[-8,39], geo:{ type:"Polygon", coordinates:[[[-9,42],[-7,42],[-7,39],[-7,37],[-9,37],[-9,39],[-9,42]]]} },
+        { id:"NL", name:"荷兰", flag:"🇳🇱", centroid:[5,52], geo:{ type:"Polygon", coordinates:[[[3,51],[4,53],[6,54],[7,53],[7,52],[5,51],[3,51]]]} },
+        { id:"BE", name:"比利时", flag:"🇧🇪", centroid:[4,51], geo:{ type:"Polygon", coordinates:[[[3,50],[4,51],[6,51],[6,50],[5,50],[3,50]]]} },
+        { id:"CH", name:"瑞士", flag:"🇨🇭", centroid:[8,47], geo:{ type:"Polygon", coordinates:[[[6,46],[7,48],[8,48],[10,48],[10,47],[10,46],[8,46],[6,46]]]} },
+        { id:"AT", name:"奥地利", flag:"🇦🇹", centroid:[14,47], geo:{ type:"Polygon", coordinates:[[[10,48],[10,47],[13,46],[16,48],[17,48],[16,47],[13,47],[10,48]]]} },
+        { id:"PL", name:"波兰", flag:"🇵🇱", centroid:[20,52], geo:{ type:"Polygon", coordinates:[[[14,50],[15,52],[15,54],[17,55],[20,55],[24,54],[24,51],[22,50],[18,49],[14,50]]]} },
+        { id:"CZ", name:"捷克", flag:"🇨🇿", centroid:[15,50], geo:{ type:"Polygon", coordinates:[[[12,49],[13,51],[15,51],[18,51],[19,49],[17,49],[15,49],[12,49]]]} },
+        { id:"SE", name:"瑞典", flag:"🇸🇪", centroid:[15,62], geo:{ type:"Polygon", coordinates:[[[12,56],[14,58],[16,60],[18,63],[18,68],[16,69],[14,67],[12,64],[11,58],[12,56]]]} },
+        { id:"NO", name:"挪威", flag:"🇳🇴", centroid:[10,62], geo:{ type:"Polygon", coordinates:[[[5,58],[7,60],[8,62],[10,64],[14,67],[16,69],[18,70],[20,69],[25,71],[30,70],[18,65],[14,62],[12,59],[8,58],[5,58]]]} },
+        { id:"DK", name:"丹麦", flag:"🇩🇰", centroid:[10,56], geo:{ type:"Polygon", coordinates:[[[8,55],[9,56],[10,57],[12,57],[12,55],[10,54],[8,55]]]} },
+        { id:"FI", name:"芬兰", flag:"🇫🇮", centroid:[26,64], geo:{ type:"Polygon", coordinates:[[[21,60],[24,62],[26,65],[28,68],[30,70],[28,67],[25,64],[24,61],[22,60],[21,60]]]} },
+        { id:"GR", name:"希腊", flag:"🇬🇷", centroid:[22,39], geo:{ type:"Polygon", coordinates:[[[20,40],[21,42],[24,42],[26,41],[26,39],[24,37],[22,36],[20,37],[20,40]]]} },
+        { id:"IE", name:"爱尔兰", flag:"🇮🇪", centroid:[-8,53], geo:{ type:"Polygon", coordinates:[[[-10,52],[-8,54],[-6,55],[-6,54],[-8,52],[-10,51],[-10,52]]]} },
+        { id:"HU", name:"匈牙利", flag:"🇭🇺", centroid:[19,47], geo:{ type:"Polygon", coordinates:[[[16,48],[17,48],[18,47],[21,47],[22,46],[20,46],[17,46],[16,47],[16,48]]]} },
+        { id:"RO", name:"罗马尼亚", flag:"🇷🇴", centroid:[25,45], geo:{ type:"Polygon", coordinates:[[[22,44],[23,46],[24,48],[26,48],[28,47],[30,46],[30,44],[28,44],[26,44],[22,44]]]} }
+      ],
+      africa: [
+        { id:"EG", name:"埃及", flag:"🇪🇬", centroid:[30,27], geo:{ type:"Polygon", coordinates:[[[25,22],[25,30],[28,31],[32,32],[35,31],[35,22],[33,22],[30,22],[25,22]]]} },
+        { id:"NG", name:"尼日利亚", flag:"🇳🇬", centroid:[8,10], geo:{ type:"Polygon", coordinates:[[[3,6],[3,10],[4,13],[8,14],[12,14],[14,13],[14,10],[12,7],[8,4],[5,5],[3,6]]]} },
+        { id:"ZA", name:"南非", flag:"🇿🇦", centroid:[25,-30], geo:{ type:"Polygon", coordinates:[[[17,-29],[17,-34],[19,-35],[26,-34],[29,-31],[32,-28],[31,-26],[28,-24],[25,-25],[20,-29],[17,-29]]]} },
+        { id:"KE", name:"肯尼亚", flag:"🇰🇪", centroid:[38,0], geo:{ type:"Polygon", coordinates:[[[34,-1],[35,4],[37,5],[40,4],[42,2],[41,0],[40,-2],[38,-4],[36,-5],[34,-1]]]} },
+        { id:"MA", name:"摩洛哥", flag:"🇲🇦", centroid:[-6,32], geo:{ type:"Polygon", coordinates:[[[-13,28],[-10,32],[-6,36],[-2,36],[-1,32],[-3,30],[-5,28],[-8,28],[-13,28]]]} },
+        { id:"ET", name:"埃塞俄比亚", flag:"🇪🇹", centroid:[39,8], geo:{ type:"Polygon", coordinates:[[[33,4],[34,8],[36,12],[38,15],[42,12],[44,8],[47,5],[44,3],[40,4],[36,4],[33,4]]]} },
+        { id:"TZ", name:"坦桑尼亚", flag:"🇹🇿", centroid:[35,-6], geo:{ type:"Polygon", coordinates:[[[30,-1],[32,0],[34,1],[36,-1],[38,-3],[40,-6],[40,-10],[37,-11],[34,-10],[32,-8],[30,-5],[30,-1]]]} },
+        { id:"GH", name:"加纳", flag:"🇬🇭", centroid:[-1,8], geo:{ type:"Polygon", coordinates:[[[-3,5],[-3,8],[-1,11],[1,11],[2,9],[1,5],[0,5],[-3,5]]]} },
+        { id:"DZ", name:"阿尔及利亚", flag:"🇩🇿", centroid:[3,28], geo:{ type:"Polygon", coordinates:[[[-2,20],[-2,28],[-2,35],[3,37],[8,37],[9,34],[9,28],[8,20],[5,19],[2,19],[-2,20]]]} },
+        { id:"TN", name:"突尼斯", flag:"🇹🇳", centroid:[9,34], geo:{ type:"Polygon", coordinates:[[[8,30],[8,34],[8,37],[10,37],[11,35],[11,33],[10,30],[8,30]]]} },
+        { id:"CD", name:"刚果(金)", flag:"🇨🇩", centroid:[23,-3], geo:{ type:"Polygon", coordinates:[[[12,-5],[14,-2],[18,0],[22,3],[26,4],[30,2],[30,-1],[30,-5],[29,-8],[28,-12],[25,-13],[22,-10],[18,-8],[15,-6],[12,-5]]]} },
+        { id:"MG", name:"马达加斯加", flag:"🇲🇬", centroid:[47,-20], geo:{ type:"Polygon", coordinates:[[[44,-13],[46,-16],[48,-20],[50,-23],[50,-25],[48,-25],[45,-22],[44,-18],[44,-13]]]} },
+        { id:"AO", name:"安哥拉", flag:"🇦🇴", centroid:[18,-12], geo:{ type:"Polygon", coordinates:[[[12,-6],[13,-4],[14,-2],[17,0],[20,-2],[22,-5],[24,-8],[24,-12],[22,-17],[18,-18],[14,-17],[12,-12],[12,-6]]]} },
+        { id:"MZ", name:"莫桑比克", flag:"🇲🇿", centroid:[34,-18], geo:{ type:"Polygon", coordinates:[[[31,-10],[33,-12],[35,-16],[36,-20],[36,-24],[35,-26],[33,-25],[32,-20],[31,-16],[30,-12],[31,-10]]]} },
+        { id:"ZM", name:"赞比亚", flag:"🇿🇲", centroid:[28,-14], geo:{ type:"Polygon", coordinates:[[[22,-10],[24,-8],[28,-8],[32,-10],[33,-14],[32,-17],[28,-18],[25,-18],[22,-17],[22,-10]]]} },
+        { id:"ZW", name:"津巴布韦", flag:"🇿🇼", centroid:[30,-19], geo:{ type:"Polygon", coordinates:[[[26,-16],[27,-14],[30,-13],[32,-16],[33,-19],[32,-21],[29,-22],[26,-21],[26,-16]]]} },
+        { id:"UG", name:"乌干达", flag:"🇺🇬", centroid:[32,1], geo:{ type:"Polygon", coordinates:[[[30,-1],[30,2],[31,4],[33,4],[35,3],[35,1],[34,-1],[32,-1],[30,-1]]]} },
+        { id:"SD", name:"苏丹", flag:"🇸🇩", centroid:[30,15], geo:{ type:"Polygon", coordinates:[[[22,10],[24,12],[25,15],[28,20],[30,22],[33,22],[36,20],[36,15],[34,12],[32,10],[28,8],[24,8],[22,10]]]} }
+      ],
+      southAmerica: [
+        { id:"BR", name:"巴西", flag:"🇧🇷", centroid:[-51,-14], geo:{ type:"Polygon", coordinates:[[[-74,-4],[-70,-2],[-60,2],[-52,4],[-45,0],[-38,-4],[-35,-8],[-35,-12],[-38,-15],[-40,-20],[-43,-23],[-48,-28],[-53,-33],[-57,-30],[-58,-25],[-58,-20],[-56,-16],[-52,-14],[-48,-12],[-44,-8],[-50,-4],[-54,-2],[-58,0],[-62,2],[-68,2],[-70,0],[-74,-4]]]} },
+        { id:"AR", name:"阿根廷", flag:"🇦🇷", centroid:[-65,-35], geo:{ type:"Polygon", coordinates:[[[-70,-22],[-65,-22],[-62,-26],[-58,-30],[-57,-35],[-58,-38],[-62,-40],[-65,-42],[-68,-46],[-68,-50],[-66,-54],[-64,-55],[-66,-50],[-68,-46],[-70,-42],[-72,-38],[-72,-34],[-71,-30],[-70,-26],[-70,-22]]]} },
+        { id:"CL", name:"智利", flag:"🇨🇱", centroid:[-71,-35], geo:{ type:"Polygon", coordinates:[[[-70,-18],[-68,-22],[-70,-26],[-72,-30],[-72,-34],[-74,-38],[-74,-42],[-72,-46],[-72,-50],[-74,-52],[-76,-48],[-76,-42],[-74,-36],[-72,-30],[-70,-24],[-70,-18]]]} },
+        { id:"CO", name:"哥伦比亚", flag:"🇨🇴", centroid:[-74,4], geo:{ type:"Polygon", coordinates:[[[-78,2],[-76,4],[-74,6],[-72,8],[-72,11],[-74,12],[-76,11],[-78,8],[-79,4],[-78,2]]]} },
+        { id:"PE", name:"秘鲁", flag:"🇵🇪", centroid:[-76,-9], geo:{ type:"Polygon", coordinates:[[[-81,-4],[-78,-2],[-74,-4],[-70,-8],[-70,-14],[-70,-17],[-72,-18],[-76,-16],[-80,-14],[-81,-10],[-81,-4]]]} },
+        { id:"VE", name:"委内瑞拉", flag:"🇻🇪", centroid:[-66,8], geo:{ type:"Polygon", coordinates:[[[-72,8],[-70,10],[-68,11],[-64,11],[-61,10],[-60,8],[-62,6],[-64,4],[-66,2],[-68,2],[-70,4],[-72,6],[-72,8]]]} },
+        { id:"UY", name:"乌拉圭", flag:"🇺🇾", centroid:[-56,-33], geo:{ type:"Polygon", coordinates:[[[-58,-30],[-56,-30],[-54,-32],[-53,-34],[-54,-35],[-56,-35],[-58,-34],[-58,-30]]]} },
+        { id:"PY", name:"巴拉圭", flag:"🇵🇾", centroid:[-55,-24], geo:{ type:"Polygon", coordinates:[[[-62,-20],[-60,-20],[-58,-22],[-56,-24],[-55,-26],[-55,-28],[-57,-28],[-58,-26],[-60,-24],[-62,-22],[-62,-20]]]} },
+        { id:"BO", name:"玻利维亚", flag:"🇧🇴", centroid:[-65,-17], geo:{ type:"Polygon", coordinates:[[[-70,-10],[-68,-10],[-64,-12],[-62,-14],[-60,-16],[-58,-18],[-60,-20],[-62,-22],[-66,-22],[-68,-20],[-70,-18],[-70,-14],[-70,-10]]]} },
+        { id:"EC", name:"厄瓜多尔", flag:"🇪🇨", centroid:[-78,-1], geo:{ type:"Polygon", coordinates:[[[-80,1],[-78,2],[-76,1],[-75,0],[-76,-2],[-78,-4],[-80,-3],[-81,-2],[-80,1]]]} }
+      ],
+      northAmerica: [
+        { id:"US", name:"美国", flag:"🇺🇸", centroid:[-98,38], geo:{ type:"Polygon", coordinates:[[[-124,48],[-120,49],[-104,49],[-95,49],[-90,47],[-85,45],[-82,42],[-76,40],[-74,40],[-72,41],[-70,42],[-67,45],[-67,42],[-75,35],[-80,32],[-82,30],[-84,30],[-88,30],[-90,29],[-94,29],[-97,26],[-100,28],[-103,32],[-106,32],[-109,32],[-112,32],[-117,33],[-120,34],[-122,37],[-124,42],[-124,48]]]} },
+        { id:"CA", name:"加拿大", flag:"🇨🇦", centroid:[-106,56], geo:{ type:"Polygon", coordinates:[[[-141,60],[-136,60],[-130,55],[-124,49],[-120,49],[-95,49],[-88,48],[-84,46],[-80,43],[-76,45],[-66,47],[-60,47],[-56,48],[-52,47],[-56,52],[-60,54],[-64,58],[-68,60],[-72,62],[-78,64],[-82,66],[-88,68],[-95,70],[-105,72],[-120,72],[-130,70],[-140,70],[-141,60]]]} },
+        { id:"MX", name:"墨西哥", flag:"🇲🇽", centroid:[-102,24], geo:{ type:"Polygon", coordinates:[[[-117,32],[-112,32],[-108,30],[-104,28],[-100,26],[-97,26],[-97,22],[-95,19],[-92,16],[-90,16],[-88,18],[-87,20],[-87,22],[-90,22],[-92,18],[-96,16],[-100,18],[-104,20],[-106,22],[-108,24],[-110,26],[-112,28],[-115,30],[-117,32]]]} },
+        { id:"CU", name:"古巴", flag:"🇨🇺", centroid:[-80,22], geo:{ type:"Polygon", coordinates:[[[-84,22],[-82,23],[-78,23],[-75,20],[-76,19],[-80,20],[-83,21],[-84,22]]]} },
+        { id:"GT", name:"危地马拉", flag:"🇬🇹", centroid:[-90,15], geo:{ type:"Polygon", coordinates:[[[-92,15],[-90,17],[-88,16],[-88,14],[-90,14],[-92,15]]]} },
+        { id:"HN", name:"洪都拉斯", flag:"🇭🇳", centroid:[-87,15], geo:{ type:"Polygon", coordinates:[[[-89,16],[-87,16],[-84,15],[-83,14],[-84,13],[-87,13],[-89,14],[-89,16]]]} },
+        { id:"SV", name:"萨尔瓦多", flag:"🇸🇻", centroid:[-89,14], geo:{ type:"Polygon", coordinates:[[[-90,14],[-89,14],[-88,14],[-88,13],[-89,13],[-90,13],[-90,14]]]} },
+        { id:"NI", name:"尼加拉瓜", flag:"🇳🇮", centroid:[-85,13], geo:{ type:"Polygon", coordinates:[[[-87,13],[-85,13],[-83,13],[-83,11],[-85,11],[-87,12],[-87,13]]]} },
+        { id:"CR", name:"哥斯达黎加", flag:"🇨🇷", centroid:[-84,10], geo:{ type:"Polygon", coordinates:[[[-86,11],[-84,11],[-83,10],[-83,8],[-85,8],[-86,9],[-86,11]]]} },
+        { id:"PA", name:"巴拿马", flag:"🇵🇦", centroid:[-80,9], geo:{ type:"Polygon", coordinates:[[[-82,9],[-80,9],[-78,8],[-77,7],[-78,7],[-80,8],[-82,8],[-82,9]]]} }
+      ],
+      oceania: [
+        { id:"AU", name:"澳大利亚", flag:"🇦🇺", centroid:[134,-25], geo:{ type:"Polygon", coordinates:[[[114,-14],[118,-12],[124,-14],[130,-12],[136,-12],[140,-14],[144,-14],[148,-16],[152,-20],[154,-24],[154,-28],[152,-32],[148,-36],[144,-38],[140,-36],[136,-34],[132,-32],[128,-30],[124,-28],[118,-24],[116,-20],[114,-18],[114,-14]]]} },
+        { id:"NZ", name:"新西兰", flag:"🇳🇿", centroid:[174,-41], geo:{ type:"Polygon", coordinates:[[[166,-35],[168,-37],[170,-40],[172,-42],[174,-44],[174,-46],[172,-46],[170,-44],[168,-42],[166,-40],[168,-38],[166,-35]]]} },
+        { id:"PG", name:"巴布亚新几内亚", flag:"🇵🇬", centroid:[147,-6], geo:{ type:"Polygon", coordinates:[[[141,-2],[143,-3],[146,-4],[148,-5],[150,-6],[152,-5],[154,-4],[155,-6],[152,-8],[148,-9],[146,-8],[143,-7],[141,-5],[141,-2]]]} },
+        { id:"FJ", name:"斐济", flag:"🇫🇯", centroid:[178,-18], geo:{ type:"Polygon", coordinates:[[[177,-17],[178,-18],[180,-18],[180,-20],[179,-20],[177,-19],[177,-17]]]} },
+        { id:"WS", name:"萨摩亚", flag:"🇼🇸", centroid:[-172,-14], geo:{ type:"Polygon", coordinates:[[[-173,-13],[-172,-14],[-171,-14],[-172,-15],[-173,-14],[-173,-13]]]} },
+        { id:"TO", name:"汤加", flag:"🇹🇴", centroid:[-175,-21], geo:{ type:"Polygon", coordinates:[[[-176,-20],[-175,-21],[-174,-21],[-175,-22],[-176,-21],[-176,-20]]]} },
+        { id:"SB", name:"所罗门群岛", flag:"🇸🇧", centroid:[160,-9], geo:{ type:"Polygon", coordinates:[[[157,-7],[158,-8],[160,-9],[162,-10],[163,-9],[162,-8],[160,-7],[157,-7]]]} },
+        { id:"VU", name:"瓦努阿图", flag:"🇻🇺", centroid:[168,-16], geo:{ type:"Polygon", coordinates:[[[167,-15],[168,-16],[169,-17],[169,-18],[168,-18],[167,-17],[167,-15]]]} },
+        { id:"KI", name:"基里巴斯", flag:"🇰🇮", centroid:[173,1], geo:{ type:"Polygon", coordinates:[[[172,0],[173,1],[174,2],[175,1],[174,0],[173,-1],[172,0]]]} }
+      ]
+    };
+
+    // ===== Game Rendering Functions =====
+
+    function initGame() {
+      const allCountries = COUNTRY_DATA[gameState.continent] || [];
+      const shuffled = [...allCountries].sort(() => Math.random() - 0.5);
+      gameState.countries = shuffled.slice(0, Math.min(10, shuffled.length));
+      gameState.score = 0;
+      gameState.errors = [];
+      gameState.isComplete = false;
+      gameState.startTime = Date.now();
+      startTimer();
+      renderMap();
+      renderSlotMarkers();
+      renderTray();
+    }
+
+    function renderMap() {
+      const container = document.getElementById('map-container');
+      const svg = document.getElementById('map-svg');
+      const rect = container.getBoundingClientRect();
+      const width = rect.width || 800;
+      const height = rect.height || 500;
+
+      svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+      svg.setAttribute('width', width);
+      svg.setAttribute('height', height);
+
+      // Determine bounding box for this continent's countries
+      const countries = COUNTRY_DATA[gameState.continent] || [];
+      let minLon = Infinity, maxLon = -Infinity, minLat = Infinity, maxLat = -Infinity;
+      countries.forEach(c => {
+        const cs = c.geo.coordinates[0];
+        cs.forEach(([lon, lat]) => {
+          if (lon < minLon) minLon = lon;
+          if (lon > maxLon) maxLon = lon;
+          if (lat < minLat) minLat = lat;
+          if (lat > maxLat) maxLat = lat;
+        });
+      });
+      const padLon = (maxLon - minLon) * 0.15;
+      const padLat = (maxLat - minLat) * 0.15;
+      const viewMinLon = minLon - padLon;
+      const viewMaxLon = maxLon + padLon;
+      const viewMinLat = minLat - padLat;
+      const viewMaxLat = maxLat + padLat;
+
+      function projectLocal(lon, lat) {
+        const lambda = lon * Math.PI / 180;
+        const phi = lat * Math.PI / 180;
+        const [px, py] = naturalEarthProject(lambda, phi);
+        const [lxMin] = naturalEarthProject(viewMinLon * Math.PI / 180, 0);
+        const [lxMax] = naturalEarthProject(viewMaxLon * Math.PI / 180, 0);
+        const [, lyMin] = naturalEarthProject(0, viewMinLat * Math.PI / 180);
+        const [, lyMax] = naturalEarthProject(0, viewMaxLat * Math.PI / 180);
+        const scale = Math.min(width / (lxMax - lxMin), height / (lyMax - lyMin));
+        const cx = width / 2;
+        const cy = height / 2;
+        const centerLon = (viewMinLon + viewMaxLon) / 2 * Math.PI / 180;
+        const centerLat = (viewMinLat + viewMaxLat) / 2 * Math.PI / 180;
+        const [ccx, ccy] = naturalEarthProject(centerLon, centerLat);
+        return [cx + (px - ccx) * scale, cy - (py - ccy) * scale];
+      }
+
+      function geoToPath(geo) {
+        const coords = geo.coordinates[0];
+        const points = coords.map(([lon, lat]) => {
+          const [x, y] = projectLocal(lon, lat);
+          return `${x.toFixed(2)},${y.toFixed(2)}`;
+        });
+        return `M${points.join('L')}Z`;
+      }
+
+      // Render all continent countries as background
+      let svgContent = '';
+      countries.forEach(country => {
+        const path = geoToPath(country.geo);
+        svgContent += `<path d="${path}" class="country-path" data-id="${country.id}" data-name="${country.name}"/>`;
+      });
+
+      svg.innerHTML = svgContent;
+
+      // Add hover events
+      svg.querySelectorAll('.country-path').forEach(path => {
+        path.addEventListener('mouseenter', () => {
+          if (!path.classList.contains('filled')) {
+            path.style.fill = '#A5B4FC';
+            path.style.stroke = '#6366F1';
+          }
+        });
+        path.addEventListener('mouseleave', () => {
+          if (!path.classList.contains('filled')) {
+            path.style.fill = '#C7D2FE';
+            path.style.stroke = '#818CF8';
+          }
+        });
+      });
+    }
+
+    function renderTray() {
+      const container = document.getElementById('flag-chips');
+      container.innerHTML = '';
+      gameState.countries.forEach(country => {
+        const chip = document.createElement('div');
+        chip.className = 'flag-chip';
+        chip.draggable = 'true';
+        chip.dataset.id = country.id;
+        chip.innerHTML = `<span class="chip-emoji">${country.flag}</span><span>${country.name}</span>`;
+
+        // Drag events
+        chip.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('text/plain', country.id);
+          chip.style.opacity = '0.5';
+        });
+        chip.addEventListener('dragend', () => {
+          chip.style.opacity = '1';
+        });
+
+        container.appendChild(chip);
+      });
+    }
+
+    function renderSlotMarkers() {
+      const container = document.getElementById('slot-markers');
+      container.innerHTML = '';
+      gameState.countries.forEach(country => {
+        const pos = getCountryScreenPosition(country.id);
+        if (!pos) return;
+        const marker = document.createElement('div');
+        marker.className = 'slot-marker';
+        marker.dataset.id = country.id;
+        marker.textContent = '?';
+        marker.style.left = pos[0] + 'px';
+        marker.style.top = pos[1] + 'px';
+
+        // Drop events
+        marker.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+        });
+        marker.addEventListener('drop', (e) => {
+          e.preventDefault();
+          const draggedId = e.dataTransfer.getData('text/plain');
+          handleDrop(draggedId, country.id, marker);
+        });
+
+        container.appendChild(marker);
+      });
+    }
+
+    function getCountryScreenPosition(countryId) {
+      const svg = document.getElementById('map-svg');
+      const path = svg.querySelector(`path[data-id="${countryId}"]`);
+      if (!path) return null;
+      const bbox = path.getBBox();
+      return [bbox.x + bbox.width / 2, bbox.y + bbox.height / 2];
+    }
+
+    function handleDrop(draggedId, targetId, markerEl) {
+      const svg = document.getElementById('map-svg');
+      const targetPath = svg.querySelector(`path[data-id="${targetId}"]`);
+      const chip = document.querySelector(`.flag-chip[data-id="${draggedId}"]`);
+      const country = gameState.countries.find(c => c.id === draggedId);
+
+      if (draggedId === targetId) {
+        // Correct!
+        gameState.score++;
+        markerEl.classList.add('filled');
+        markerEl.textContent = country.flag;
+        targetPath.classList.add('filled');
+        chip.classList.add('placed');
+        document.getElementById('game-score').textContent = `${gameState.score} / ${gameState.countries.length}`;
+        if (gameState.score === gameState.countries.length) {
+          gameState.isComplete = true;
+          stopTimer();
+          setTimeout(() => {
+            showPage('result');
+          }, 800);
+        }
+      } else {
+        // Wrong
+        gameState.errors.push({ dragged: draggedId, target: targetId });
+        markerEl.classList.add('wrong');
+        markerEl.textContent = '✕';
+        if (targetPath) {
+          targetPath.classList.add('wrong-flash');
+          setTimeout(() => targetPath.classList.remove('wrong-flash'), 600);
+        }
+        setTimeout(() => {
+          markerEl.classList.remove('wrong');
+          markerEl.textContent = '?';
+        }, 800);
+      }
+    }
+
+    // ===== Timer Functions =====
+
+    function startTimer() {
+      stopTimer();
+      const display = document.getElementById('game-timer');
+      display.textContent = '00:00';
+      gameState.timerInterval = setInterval(() => {
+        const elapsed = getElapsedTime();
+        const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
+        const secs = (elapsed % 60).toString().padStart(2, '0');
+        display.textContent = `${mins}:${secs}`;
+      }, 1000);
+    }
+
+    function stopTimer() {
+      if (gameState.timerInterval) {
+        clearInterval(gameState.timerInterval);
+        gameState.timerInterval = null;
+      }
+    }
+
+    function getElapsedTime() {
+      if (!gameState.startTime) return 0;
+      return Math.floor((Date.now() - gameState.startTime) / 1000);
+    }
+
+    // ===== Override startGame to initialize =====
+    const _origStartGame = startGame;
+    startGame = function(key) {
+      gameState.continent = key;
+      showPage('game');
+      // Wait a tick for layout to compute, then init
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const continent = CONTINENTS[key];
+          document.getElementById('game-region-name').textContent = `${continent.emoji} ${continent.name}`;
+          document.getElementById('game-score').textContent = `0 / ?`;
+          document.getElementById('game-timer').textContent = '00:00';
+          initGame();
+        });
+      });
+    };
   </script>
 </body>
 </html>
