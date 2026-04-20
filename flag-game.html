@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>世界插旗挑战</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    /* ===== Global Reset ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* ===== Base Styles ===== */
+    body {
+      font-family: 'Comic Neue', cursive;
+      background: #EEF2FF;
+      color: #1E1B4B;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    h1, h2, h3 {
+      font-family: 'Baloo 2', cursive;
+    }
+
+    /* ===== Page Switching ===== */
+    .page {
+      display: none;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .page.visible {
+      display: flex;
+    }
+
+    /* ===== Claymorphism Utility Classes ===== */
+    .clay {
+      background: #FFFFFF;
+      border-radius: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.7);
+      box-shadow:
+        8px 8px 20px rgba(79, 70, 229, 0.1),
+        inset -4px -4px 8px rgba(0, 0, 0, 0.03),
+        inset 4px 4px 8px rgba(255, 255, 255, 0.8);
+    }
+
+    .clay-accent {
+      background: #4F46E5;
+      color: #FFFFFF;
+      border-radius: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      box-shadow:
+        8px 8px 20px rgba(79, 70, 229, 0.15),
+        inset -4px -4px 8px rgba(0, 0, 0, 0.1),
+        inset 4px 4px 8px rgba(255, 255, 255, 0.15);
+    }
+
+    /* ===== Navigation Bar ===== */
+    .nav-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(79, 70, 229, 0.08);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Baloo 2', cursive;
+      font-size: 20px;
+      font-weight: 700;
+      color: #1E1B4B;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .nav-logo svg {
+      width: 32px;
+      height: 32px;
+    }
+
+    .nav-spacer {
+      width: 60px;
+    }
+
+    /* ===== Home Page ===== */
+    .home-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 20px 40px;
+      gap: 32px;
+    }
+
+    .hero-text {
+      text-align: center;
+    }
+
+    .hero-text h1 {
+      font-size: 2.4rem;
+      line-height: 1.3;
+      color: #1E1B4B;
+    }
+
+    .hero-text h1 .highlight {
+      color: #F97316;
+    }
+
+    .hero-text p {
+      font-size: 1.15rem;
+      color: #6366F1;
+      margin-top: 8px;
+      font-weight: 400;
+    }
+
+    .continent-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      max-width: 680px;
+      width: 100%;
+    }
+
+    .continent-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .continent-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .continent-card .card-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .continent-card .card-name {
+      font-family: 'Baloo 2', cursive;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 4px;
+    }
+
+    .continent-card .card-count {
+      font-size: 0.85rem;
+      color: #6B7280;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="nav-bar">
+    <div class="nav-logo" onclick="showPage('home')">
+      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="16" cy="16" r="14" fill="#4F46E5" opacity="0.15"/>
+        <path d="M16 4C12 4 8 8 8 12C8 20 16 28 16 28C16 28 24 20 24 12C24 8 20 4 16 4Z" fill="#4F46E5"/>
+        <circle cx="16" cy="12" r="4" fill="#FFFFFF"/>
+        <line x1="16" y1="8" x2="16" y2="16" stroke="#FFFFFF" stroke-width="1.5"/>
+        <line x1="12" y1="12" x2="20" y2="12" stroke="#FFFFFF" stroke-width="1.5"/>
+      </svg>
+      世界插旗挑战
+    </div>
+    <div class="nav-spacer"></div>
+  </nav>
+
+  <!-- Page: Home -->
+  <section id="page-home" class="page visible">
+    <div class="home-content">
+      <div class="hero-text">
+        <h1>把国旗插到<span class="highlight">正确的位置</span></h1>
+        <p>选择一个大洲，开始挑战吧！</p>
+      </div>
+      <div class="continent-grid" id="continent-grid">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Page: Game -->
+  <section id="page-game" class="page">
+    <!-- Game content will be added later -->
+  </section>
+
+  <!-- Page: Result -->
+  <section id="page-result" class="page">
+    <!-- Result content will be added later -->
+  </section>
+
+  <script>
+    // ===== Page Switching =====
+    function showPage(id) {
+      document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('visible');
+      });
+      document.getElementById('page-' + id).classList.add('visible');
+    }
+
+    // ===== Continent Data =====
+    const CONTINENTS = {
+      asia:         { name: "亚洲",   emoji: "🌏", color: "#FEE2E2", textColor: "#991B1B", count: 48 },
+      europe:       { name: "欧洲",   emoji: "🌍", color: "#DBEAFE", textColor: "#1E3A8A", count: 44 },
+      africa:       { name: "非洲",   emoji: "🌍", color: "#FEF3C7", textColor: "#92400E", count: 54 },
+      southAmerica: { name: "南美洲", emoji: "🌎", color: "#D1FAE5", textColor: "#065F46", count: 12 },
+      northAmerica: { name: "北美洲", emoji: "🌎", color: "#EDE9FE", textColor: "#5B21B6", count: 23 },
+      oceania:      { name: "大洋洲", emoji: "🌏", color: "#CFFAFE", textColor: "#155E75", count: 14 }
+    };
+
+    // ===== Game State =====
+    const gameState = {
+      continent: null,
+      countries: [],
+      score: 0,
+      errors: [],
+      startTime: null,
+      timerInterval: null,
+      isComplete: false
+    };
+
+    // ===== Start Game =====
+    function startGame(key) {
+      gameState.continent = key;
+      showPage('game');
+    }
+
+    // ===== Render Continent Grid =====
+    function renderContinentGrid() {
+      const grid = document.getElementById('continent-grid');
+      grid.innerHTML = '';
+      for (const [key, continent] of Object.entries(CONTINENTS)) {
+        const card = document.createElement('div');
+        card.className = 'continent-card clay';
+        card.onclick = () => startGame(key);
+        card.innerHTML = `
+          <div class="card-icon" style="background:${continent.color}">
+            <span>${continent.emoji}</span>
+          </div>
+          <div class="card-name" style="color:${continent.textColor}">${continent.name}</div>
+          <div class="card-count">${continent.count} 个国家</div>
+        `;
+        grid.appendChild(card);
+      }
+    }
+
+    // ===== Initialize =====
+    renderContinentGrid();
+  </script>
+</body>
+</html>
