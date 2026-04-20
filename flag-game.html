@@ -179,8 +179,43 @@
 
     /* ===== Slot Pulse Animation ===== */
     @keyframes slot-pulse {
-      0%, 100% { border-color: #818CF8; }
-      50% { border-color: #C7D2FE; }
+      0%, 100% { border-color: #818CF8; transform: translate(-50%, -50%) scale(1); }
+      50% { border-color: #C7D2FE; transform: translate(-50%, -50%) scale(1.08); }
+    }
+
+    @keyframes flag-drop {
+      0% { opacity: 0; transform: translate(-50%, -150%); }
+      60% { transform: translate(-50%, -90%); }
+      100% { opacity: 1; transform: translate(-50%, -100%); }
+    }
+
+    @keyframes score-pop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+      100% { transform: scale(1); }
+    }
+
+    /* Touch drag clone */
+    .touch-clone {
+      position: fixed;
+      z-index: 9999;
+      pointer-events: none;
+      transform: scale(1.15) rotate(-2deg);
+      opacity: 0.92;
+      filter: drop-shadow(0 6px 12px rgba(79, 70, 229, 0.3));
+    }
+
+    /* Country highlight for drag */
+    .country-path.drag-highlight {
+      fill: #DDD6FE;
+      stroke: #7C3AED;
+      stroke-width: 2.5;
+    }
+
+    .country-path.filled {
+      fill: #86EFAC;
+      stroke: #22C55E;
+      pointer-events: none;
     }
 
     /* ===== Game Page ===== */
@@ -376,15 +411,349 @@
       stroke: #6366F1;
     }
 
-    .country-path.filled {
-      fill: #DDD6FE;
-      stroke: #A78BFA;
-      pointer-events: none;
-    }
-
     .country-path.wrong-flash {
       fill: #FCA5A5;
       stroke: #EF4444;
+    }
+
+    /* ===== Flag Marker (placed on map) ===== */
+    .flag-marker {
+      position: absolute;
+      font-size: 24px;
+      transform: translate(-50%, -100%);
+      pointer-events: none;
+      animation: flag-drop 0.4s ease-out forwards;
+      z-index: 5;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+
+    /* ===== Result Page ===== */
+    .result-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 20px 40px;
+      gap: 24px;
+      overflow-y: auto;
+    }
+
+    .result-card {
+      max-width: 440px;
+      width: 100%;
+      border-radius: 24px;
+      overflow: hidden;
+    }
+
+    .result-header {
+      background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+      padding: 28px 24px 20px;
+      text-align: center;
+      position: relative;
+    }
+
+    .result-header .trophy {
+      font-size: 48px;
+      margin-bottom: 8px;
+    }
+
+    .result-header h2 {
+      font-size: 1.6rem;
+      color: #1E1B4B;
+      margin-bottom: 4px;
+    }
+
+    .result-header .result-subtitle {
+      font-size: 0.9rem;
+      color: #6366F1;
+      margin-bottom: 16px;
+    }
+
+    .score-ring {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .score-ring-inner {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Baloo 2', cursive;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: #4F46E5;
+    }
+
+    .result-stats {
+      display: flex;
+      gap: 0;
+      padding: 16px 0;
+      border-bottom: 2px solid #F3F4F6;
+    }
+
+    .result-stat {
+      flex: 1;
+      text-align: center;
+      border-right: 2px solid #F3F4F6;
+    }
+
+    .result-stat:last-child {
+      border-right: none;
+    }
+
+    .result-stat .stat-value {
+      font-family: 'Baloo 2', cursive;
+      font-weight: 700;
+      font-size: 1.3rem;
+    }
+
+    .result-stat .stat-label {
+      font-size: 0.75rem;
+      color: #6B7280;
+      margin-top: 2px;
+    }
+
+    .stat-correct .stat-value { color: #16A34A; }
+    .stat-wrong .stat-value { color: #DC2626; }
+    .stat-time .stat-value { color: #EA580C; }
+
+    .result-review {
+      padding: 16px 20px;
+      max-height: 240px;
+      overflow-y: auto;
+    }
+
+    .result-review::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .result-review::-webkit-scrollbar-thumb {
+      background: #C7D2FE;
+      border-radius: 2px;
+    }
+
+    .review-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid #F9FAFB;
+    }
+
+    .review-item:last-child {
+      border-bottom: none;
+    }
+
+    .review-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .review-icon.correct {
+      background: #DCFCE7;
+      color: #16A34A;
+    }
+
+    .review-icon.wrong {
+      background: #FEE2E2;
+      color: #DC2626;
+    }
+
+    .review-flag {
+      font-size: 1.2rem;
+    }
+
+    .review-name {
+      flex: 1;
+      font-family: 'Baloo 2', cursive;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #1E1B4B;
+    }
+
+    .review-detail {
+      font-size: 0.75rem;
+      color: #9CA3AF;
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 12px;
+      padding: 0 20px 20px;
+    }
+
+    .result-actions button {
+      flex: 1;
+      padding: 12px 0;
+      border: none;
+      border-radius: 14px;
+      font-family: 'Baloo 2', cursive;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .result-actions button:hover {
+      transform: translateY(-2px);
+    }
+
+    .result-actions button:active {
+      transform: scale(0.97);
+    }
+
+    .btn-home {
+      background: #FFFFFF;
+      color: #4F46E5;
+      border: 2px solid #E0E7FF !important;
+      box-shadow: 4px 4px 10px rgba(79,70,229,0.08), inset -2px -2px 4px rgba(0,0,0,0.02), inset 2px 2px 4px rgba(255,255,255,0.6);
+    }
+
+    .btn-retry {
+      background: #4F46E5;
+      color: #FFFFFF;
+      border: 2px solid rgba(255,255,255,0.2) !important;
+      box-shadow: 8px 8px 20px rgba(79,70,229,0.15), inset -4px -4px 8px rgba(0,0,0,0.1), inset 4px 4px 8px rgba(255,255,255,0.15);
+    }
+
+    /* ===== Responsive Design ===== */
+    @media (max-width: 640px) {
+      .hero-text h1 {
+        font-size: 1.7rem;
+      }
+
+      .hero-text p {
+        font-size: 1rem;
+      }
+
+      .continent-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+
+      .continent-card {
+        padding: 14px 10px;
+      }
+
+      .continent-card .card-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 22px;
+      }
+
+      .continent-card .card-name {
+        font-size: 0.9rem;
+      }
+
+      .nav-bar {
+        padding: 0 16px;
+        height: 52px;
+      }
+
+      .nav-logo {
+        font-size: 17px;
+      }
+
+      .nav-logo svg {
+        width: 28px;
+        height: 28px;
+      }
+
+      .home-content {
+        padding: 64px 16px 24px;
+        gap: 24px;
+      }
+
+      .game-header {
+        height: 48px;
+        padding: 0 12px;
+      }
+
+      .game-header .region-name {
+        font-size: 0.95rem;
+      }
+
+      .game-header .score-display,
+      .game-header .timer-display {
+        font-size: 0.85rem;
+      }
+
+      .flag-tray {
+        height: 70px;
+        padding: 0 10px;
+        gap: 8px;
+      }
+
+      .flag-chip {
+        padding: 5px 10px;
+        font-size: 0.78rem;
+      }
+
+      .flag-chip .chip-emoji {
+        font-size: 1rem;
+      }
+
+      .slot-marker {
+        width: 30px;
+        height: 30px;
+        font-size: 13px;
+      }
+
+      .result-content {
+        padding: 64px 12px 20px;
+        gap: 16px;
+      }
+
+      .result-header {
+        padding: 20px 16px 16px;
+      }
+
+      .result-header h2 {
+        font-size: 1.3rem;
+      }
+
+      .result-header .trophy {
+        font-size: 40px;
+      }
+
+      .score-ring {
+        width: 80px;
+        height: 80px;
+      }
+
+      .score-ring-inner {
+        width: 62px;
+        height: 62px;
+        font-size: 1rem;
+      }
+
+      .result-review {
+        max-height: 180px;
+        padding: 12px 16px;
+      }
+    }
+
+    /* ===== Reduced Motion ===== */
+    @media (prefers-reduced-motion: reduce) {
+      .slot-marker, .flag-marker { animation: none !important; }
+      * { transition: none !important; }
     }
   </style>
 </head>
@@ -438,7 +807,37 @@
 
   <!-- Page: Result -->
   <section id="page-result" class="page">
-    <!-- Result content will be added later -->
+    <div class="result-content">
+      <div class="result-card clay">
+        <div class="result-header">
+          <div class="trophy">&#127942;</div>
+          <h2 id="result-title">挑战完成！</h2>
+          <div class="result-subtitle" id="result-subtitle"></div>
+          <div class="score-ring" id="result-score-ring">
+            <div class="score-ring-inner" id="result-score-text">0/0</div>
+          </div>
+        </div>
+        <div class="result-stats">
+          <div class="result-stat stat-correct">
+            <div class="stat-value" id="result-correct">0</div>
+            <div class="stat-label">正确</div>
+          </div>
+          <div class="result-stat stat-wrong">
+            <div class="stat-value" id="result-wrong">0</div>
+            <div class="stat-label">错误</div>
+          </div>
+          <div class="result-stat stat-time">
+            <div class="stat-value" id="result-time">00:00</div>
+            <div class="stat-label">用时</div>
+          </div>
+        </div>
+        <div class="result-review" id="result-review"></div>
+        <div class="result-actions">
+          <button class="btn-home" onclick="goHome()">换个大洲</button>
+          <button class="btn-retry" onclick="retryGame()">再来一次</button>
+        </div>
+      </div>
+    </div>
   </section>
 
   <script>
@@ -448,6 +847,54 @@
         page.classList.remove('visible');
       });
       document.getElementById('page-' + id).classList.add('visible');
+    }
+
+    // ===== Sound Effects (Web Audio API) =====
+    let audioCtx = null;
+    function getAudioCtx() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      return audioCtx;
+    }
+    function playSound(type) {
+      try {
+        const ctx = getAudioCtx();
+        if (type === 'correct') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.frequency.value = 800;
+          osc.type = 'sine';
+          gain.gain.setValueAtTime(0.3, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+          osc.start(ctx.currentTime);
+          osc.stop(ctx.currentTime + 0.15);
+        } else if (type === 'wrong') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.frequency.value = 300;
+          osc.type = 'sawtooth';
+          gain.gain.setValueAtTime(0.2, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+          osc.start(ctx.currentTime);
+          osc.stop(ctx.currentTime + 0.2);
+        } else if (type === 'complete') {
+          [523, 659, 784].forEach((freq, i) => {
+            const o = ctx.createOscillator();
+            const g = ctx.createGain();
+            o.connect(g);
+            g.connect(ctx.destination);
+            o.frequency.value = freq;
+            o.type = 'sine';
+            g.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.15);
+            g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.15 + 0.2);
+            o.start(ctx.currentTime + i * 0.15);
+            o.stop(ctx.currentTime + i * 0.15 + 0.2);
+          });
+        }
+      } catch(e) {}
     }
 
     // ===== Continent Data =====
@@ -469,6 +916,15 @@
       startTime: null,
       timerInterval: null,
       isComplete: false
+    };
+
+    // Touch drag state
+    let touchDragState = {
+      active: false,
+      countryId: null,
+      clone: null,
+      chip: null,
+      highlightedPath: null
     };
 
     // ===== Start Game =====
@@ -738,17 +1194,122 @@
         chip.dataset.id = country.id;
         chip.innerHTML = `<span class="chip-emoji">${country.flag}</span><span>${country.name}</span>`;
 
-        // Drag events
+        // Desktop drag events (HTML5 Drag & Drop)
         chip.addEventListener('dragstart', (e) => {
+          if (chip.classList.contains('placed')) { e.preventDefault(); return; }
           e.dataTransfer.setData('text/plain', country.id);
-          chip.style.opacity = '0.5';
+          e.dataTransfer.effectAllowed = 'move';
+          requestAnimationFrame(() => {
+            chip.style.opacity = '0.5';
+            chip.style.transform = 'scale(1.1)';
+          });
         });
         chip.addEventListener('dragend', () => {
           chip.style.opacity = '1';
+          chip.style.transform = '';
         });
+
+        // Mobile touch events
+        chip.addEventListener('touchstart', (e) => {
+          if (chip.classList.contains('placed')) return;
+          e.preventDefault();
+          const touch = e.touches[0];
+          touchDragState.active = true;
+          touchDragState.countryId = country.id;
+          touchDragState.chip = chip;
+
+          // Create clone that follows finger
+          const clone = chip.cloneNode(true);
+          clone.className = 'flag-chip touch-clone';
+          clone.style.width = chip.offsetWidth + 'px';
+          clone.style.left = (touch.clientX - chip.offsetWidth / 2) + 'px';
+          clone.style.top = (touch.clientY - 30) + 'px';
+          document.body.appendChild(clone);
+          touchDragState.clone = clone;
+
+          // Hide original
+          chip.style.opacity = '0.35';
+        }, { passive: false });
 
         container.appendChild(chip);
       });
+
+      // Global touch move and end handlers (attached once)
+      if (!window._touchHandlersAttached) {
+        window._touchHandlersAttached = true;
+
+        document.addEventListener('touchmove', (e) => {
+          if (!touchDragState.active || !touchDragState.clone) return;
+          e.preventDefault();
+          const touch = e.touches[0];
+          touchDragState.clone.style.left = (touch.clientX - touchDragState.clone.offsetWidth / 2) + 'px';
+          touchDragState.clone.style.top = (touch.clientY - 30) + 'px';
+
+          // Highlight country under touch point
+          touchDragState.clone.style.display = 'none';
+          const el = document.elementFromPoint(touch.clientX, touch.clientY);
+          touchDragState.clone.style.display = '';
+
+          // Remove previous highlight
+          if (touchDragState.highlightedPath) {
+            touchDragState.highlightedPath.classList.remove('drag-highlight');
+            touchDragState.highlightedPath = null;
+          }
+
+          if (el) {
+            const path = el.closest('.country-path');
+            if (path && !path.classList.contains('filled')) {
+              path.classList.add('drag-highlight');
+              touchDragState.highlightedPath = path;
+            }
+          }
+        }, { passive: false });
+
+        document.addEventListener('touchend', (e) => {
+          if (!touchDragState.active) return;
+          const touch = e.changedTouches[0];
+
+          // Remove clone
+          if (touchDragState.clone) {
+            touchDragState.clone.remove();
+            touchDragState.clone = null;
+          }
+
+          // Remove highlight
+          if (touchDragState.highlightedPath) {
+            touchDragState.highlightedPath.classList.remove('drag-highlight');
+            touchDragState.highlightedPath = null;
+          }
+
+          // Find target country from touch point
+          const el = document.elementFromPoint(touch.clientX, touch.clientY);
+          let targetId = null;
+          if (el) {
+            const path = el.closest('.country-path');
+            if (path) targetId = path.dataset.id;
+            // Also check slot markers
+            const slot = el.closest('.slot-marker');
+            if (slot) targetId = slot.dataset.id;
+          }
+
+          // Restore chip appearance
+          if (touchDragState.chip) {
+            touchDragState.chip.style.opacity = '1';
+          }
+
+          if (targetId && touchDragState.countryId) {
+            if (touchDragState.countryId === targetId) {
+              placeFlag(touchDragState.countryId, targetId);
+            } else {
+              wrongDrop(touchDragState.countryId, targetId);
+            }
+          }
+
+          touchDragState.active = false;
+          touchDragState.countryId = null;
+          touchDragState.chip = null;
+        });
+      }
     }
 
     function renderSlotMarkers() {
@@ -764,18 +1325,55 @@
         marker.style.left = pos[0] + 'px';
         marker.style.top = pos[1] + 'px';
 
-        // Drop events
+        // Desktop drop events
         marker.addEventListener('dragover', (e) => {
           e.preventDefault();
           e.dataTransfer.dropEffect = 'move';
+          marker.style.borderColor = '#7C3AED';
+          marker.style.transform = 'translate(-50%, -50%) scale(1.15)';
+        });
+        marker.addEventListener('dragleave', () => {
+          marker.style.borderColor = '';
+          marker.style.transform = '';
         });
         marker.addEventListener('drop', (e) => {
           e.preventDefault();
+          marker.style.borderColor = '';
+          marker.style.transform = '';
           const draggedId = e.dataTransfer.getData('text/plain');
-          handleDrop(draggedId, country.id, marker);
+          if (draggedId === country.id) {
+            placeFlag(draggedId, country.id);
+          } else {
+            wrongDrop(draggedId, country.id);
+          }
         });
 
         container.appendChild(marker);
+      });
+
+      // Also add dragover/drop on country paths for desktop
+      const svg = document.getElementById('map-svg');
+      svg.querySelectorAll('.country-path').forEach(path => {
+        path.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          if (!path.classList.contains('filled')) {
+            path.classList.add('drag-highlight');
+          }
+        });
+        path.addEventListener('dragleave', () => {
+          path.classList.remove('drag-highlight');
+        });
+        path.addEventListener('drop', (e) => {
+          e.preventDefault();
+          path.classList.remove('drag-highlight');
+          const draggedId = e.dataTransfer.getData('text/plain');
+          const targetId = path.dataset.id;
+          if (draggedId === targetId) {
+            placeFlag(draggedId, targetId);
+          } else {
+            wrongDrop(draggedId, targetId);
+          }
+        });
       });
     }
 
@@ -787,40 +1385,91 @@
       return [bbox.x + bbox.width / 2, bbox.y + bbox.height / 2];
     }
 
-    function handleDrop(draggedId, targetId, markerEl) {
+    function placeFlag(countryId, targetId) {
       const svg = document.getElementById('map-svg');
       const targetPath = svg.querySelector(`path[data-id="${targetId}"]`);
-      const chip = document.querySelector(`.flag-chip[data-id="${draggedId}"]`);
-      const country = gameState.countries.find(c => c.id === draggedId);
+      const chip = document.querySelector(`.flag-chip[data-id="${countryId}"]`);
+      const marker = document.querySelector(`.slot-marker[data-id="${targetId}"]`);
+      const country = gameState.countries.find(c => c.id === countryId);
+      if (!country || !targetPath || !chip) return;
 
-      if (draggedId === targetId) {
-        // Correct!
-        gameState.score++;
-        markerEl.classList.add('filled');
-        markerEl.textContent = country.flag;
-        targetPath.classList.add('filled');
-        chip.classList.add('placed');
-        document.getElementById('game-score').textContent = `${gameState.score} / ${gameState.countries.length}`;
-        if (gameState.score === gameState.countries.length) {
-          gameState.isComplete = true;
-          stopTimer();
-          setTimeout(() => {
-            showPage('result');
-          }, 800);
-        }
-      } else {
-        // Wrong
-        gameState.errors.push({ dragged: draggedId, target: targetId });
-        markerEl.classList.add('wrong');
-        markerEl.textContent = '✕';
-        if (targetPath) {
-          targetPath.classList.add('wrong-flash');
-          setTimeout(() => targetPath.classList.remove('wrong-flash'), 600);
-        }
+      // Increment score
+      gameState.score++;
+      playSound('correct');
+
+      // Update score display with pop animation
+      const scoreEl = document.getElementById('game-score');
+      scoreEl.textContent = `${gameState.score} / ${gameState.countries.length}`;
+      scoreEl.style.animation = 'none';
+      scoreEl.offsetHeight; // force reflow
+      scoreEl.style.animation = 'score-pop 0.3s ease';
+
+      // Mark SVG path as filled (green)
+      targetPath.classList.add('filled');
+
+      // Remove corresponding slot marker
+      if (marker) {
+        marker.style.display = 'none';
+      }
+
+      // Create flag marker at country position (animated drop)
+      const pos = getCountryScreenPosition(targetId);
+      if (pos) {
+        const flagMarker = document.createElement('div');
+        flagMarker.className = 'flag-marker';
+        flagMarker.textContent = country.flag;
+        flagMarker.style.left = pos[0] + 'px';
+        flagMarker.style.top = pos[1] + 'px';
+        document.getElementById('flag-markers').appendChild(flagMarker);
+      }
+
+      // Mark tray chip as placed
+      chip.classList.add('placed');
+      chip.draggable = false;
+      chip.style.cursor = 'default';
+
+      // Check if all flags placed
+      if (gameState.score === gameState.countries.length) {
+        gameState.isComplete = true;
+        stopTimer();
+        playSound('complete');
         setTimeout(() => {
-          markerEl.classList.remove('wrong');
-          markerEl.textContent = '?';
-        }, 800);
+          showResult();
+          showPage('result');
+        }, 500);
+      }
+    }
+
+    function wrongDrop(countryId, wrongTargetId) {
+      const svg = document.getElementById('map-svg');
+      const targetPath = svg.querySelector(`path[data-id="${wrongTargetId}"]`);
+      const marker = document.querySelector(`.slot-marker[data-id="${wrongTargetId}"]`);
+      const chip = document.querySelector(`.flag-chip[data-id="${countryId}"]`);
+
+      // Add to errors
+      gameState.errors.push({ dragged: countryId, target: wrongTargetId });
+      playSound('wrong');
+
+      // Flash target country red
+      if (targetPath) {
+        targetPath.classList.add('wrong-flash');
+        setTimeout(() => targetPath.classList.remove('wrong-flash'), 500);
+      }
+
+      // Flash slot marker
+      if (marker) {
+        marker.classList.add('wrong');
+        marker.textContent = '✕';
+        setTimeout(() => {
+          marker.classList.remove('wrong');
+          marker.textContent = '?';
+        }, 500);
+      }
+
+      // Restore chip appearance
+      if (chip) {
+        chip.style.opacity = '1';
+        chip.style.transform = '';
       }
     }
 
@@ -850,8 +1499,72 @@
       return Math.floor((Date.now() - gameState.startTime) / 1000);
     }
 
+    // ===== Result Page =====
+
+    function showResult() {
+      const total = gameState.countries.length;
+      const score = gameState.score;
+      const wrongCount = gameState.errors.length;
+      const elapsed = getElapsedTime();
+      const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
+      const secs = (elapsed % 60).toString().padStart(2, '0');
+      const continent = CONTINENTS[gameState.continent];
+
+      // Title and subtitle
+      document.getElementById('result-title').textContent = score === total ? '完美通关！' : '挑战完成！';
+      document.getElementById('result-subtitle').textContent = `${continent.emoji} ${continent.name} - 共 ${total} 个国家`;
+
+      // Score ring (conic-gradient)
+      const pct = total > 0 ? Math.round((score / total) * 100) : 0;
+      const ring = document.getElementById('result-score-ring');
+      ring.style.background = `conic-gradient(#4F46E5 0% ${pct}%, #E0E7FF ${pct}% 100%)`;
+      document.getElementById('result-score-text').textContent = `${score}/${total}`;
+
+      // Stats
+      document.getElementById('result-correct').textContent = score;
+      document.getElementById('result-wrong').textContent = wrongCount;
+      document.getElementById('result-time').textContent = `${mins}:${secs}`;
+
+      // Review list
+      const reviewEl = document.getElementById('result-review');
+      reviewEl.innerHTML = '';
+      const errorTargets = new Set(gameState.errors.map(e => e.target));
+
+      gameState.countries.forEach(country => {
+        const isCorrect = !errorTargets.has(country.id);
+        const item = document.createElement('div');
+        item.className = 'review-item';
+        item.innerHTML = `
+          <div class="review-icon ${isCorrect ? 'correct' : 'wrong'}">${isCorrect ? '&#10003;' : '&#10007;'}</div>
+          <span class="review-flag">${country.flag}</span>
+          <span class="review-name">${country.name}</span>
+          <span class="review-detail">${isCorrect ? '正确' : '未答对'}</span>
+        `;
+        reviewEl.appendChild(item);
+      });
+    }
+
+    function retryGame() {
+      showPage('game');
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const continent = CONTINENTS[gameState.continent];
+          document.getElementById('game-region-name').textContent = `${continent.emoji} ${continent.name}`;
+          document.getElementById('game-score').textContent = `0 / ?`;
+          document.getElementById('game-timer').textContent = '00:00';
+          // Clear flag markers from previous game
+          document.getElementById('flag-markers').innerHTML = '';
+          initGame();
+        });
+      });
+    }
+
+    function goHome() {
+      stopTimer();
+      showPage('home');
+    }
+
     // ===== Override startGame to initialize =====
-    const _origStartGame = startGame;
     startGame = function(key) {
       gameState.continent = key;
       showPage('game');
@@ -862,6 +1575,8 @@
           document.getElementById('game-region-name').textContent = `${continent.emoji} ${continent.name}`;
           document.getElementById('game-score').textContent = `0 / ?`;
           document.getElementById('game-timer').textContent = '00:00';
+          // Clear flag markers from previous game
+          document.getElementById('flag-markers').innerHTML = '';
           initGame();
         });
       });
