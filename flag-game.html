@@ -7,6 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     /* ===== Global Reset ===== */
     * {
@@ -207,14 +209,15 @@
 
     /* Country highlight for drag */
     .country-path.drag-highlight {
-      fill: #DDD6FE;
+      fill: rgba(124, 58, 237, 0.3);
       stroke: #7C3AED;
       stroke-width: 2.5;
     }
 
     .country-path.filled {
-      fill: #86EFAC;
+      fill: rgba(34, 197, 94, 0.35);
       stroke: #22C55E;
+      stroke-width: 2;
       pointer-events: none;
     }
 
@@ -255,26 +258,7 @@
     .map-container {
       flex: 1;
       position: relative;
-      background: linear-gradient(135deg, #E0E7FF, #DBEAFE, #CFFAFE);
       overflow: hidden;
-    }
-
-    .map-container #map-svg {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    .map-container #flag-markers,
-    .map-container #slot-markers {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
     }
 
     .slot-marker {
@@ -398,16 +382,16 @@
     }
 
     .country-path {
-      fill: #E8ECF8;
+      fill: rgba(99, 102, 241, 0.15);
       stroke: #6366F1;
-      stroke-width: 2;
+      stroke-width: 1.5;
       stroke-linejoin: round;
       cursor: pointer;
       transition: fill 0.2s ease, stroke 0.2s ease;
     }
 
     .country-path:hover {
-      fill: #C7D2FE;
+      fill: rgba(99, 102, 241, 0.35);
       stroke: #4F46E5;
       stroke-width: 2.5;
     }
@@ -796,9 +780,10 @@
       <div class="timer-display" id="game-timer">00:00</div>
     </div>
     <div class="map-container" id="map-container">
-      <svg id="map-svg" preserveAspectRatio="xMidYMid meet"></svg>
-      <div id="flag-markers"></div>
-      <div id="slot-markers"></div>
+      <div id="leaflet-map" style="position:absolute;inset:0;z-index:1"></div>
+      <svg id="map-svg" style="position:absolute;inset:0;z-index:2;pointer-events:none" preserveAspectRatio="xMidYMid meet"></svg>
+      <div id="flag-markers" style="position:absolute;inset:0;z-index:3;pointer-events:none"></div>
+      <div id="slot-markers" style="position:absolute;inset:0;z-index:4;pointer-events:none"></div>
     </div>
     <div class="flag-tray">
       <div class="tray-label">拖拽区</div>
@@ -956,32 +941,16 @@
     // ===== Initialize =====
     renderContinentGrid();
 
-    // ===== Natural Earth Projection (lightweight inline) =====
-    function naturalEarthProject(lambda, phi) {
-      const phi2 = phi * phi;
-      const phi4 = phi2 * phi2;
-      const x = lambda * (0.8707 - 0.131979 * phi2 - 0.013791 * phi4);
-      const y = phi * (1.007226 + 0.015085 * phi2 - 0.044475 * phi4);
-      return [x, y];
-    }
+    // ===== Leaflet Map Instance =====
+    let leafletMap = null;
 
-    function lonLatToXY(lon, lat, width, height) {
-      const lambda = lon * Math.PI / 180;
-      const phi = lat * Math.PI / 180;
-      const [x, y] = naturalEarthProject(lambda, phi);
-      const scale = Math.min(width / 5.6, height / 3.0);
-      const cx = width / 2;
-      const cy = height / 2;
-      return [cx + x * scale, cy - y * scale];
-    }
-
-    function geoJsonToSvgPath(geojson, width, height) {
-      const coords = geojson.coordinates[0];
-      const points = coords.map(([lon, lat]) => {
-        const [x, y] = lonLatToXY(lon, lat, width, height);
-        return `${x.toFixed(2)},${y.toFixed(2)}`;
+    function forEachCoord(countries, fn) {
+      countries.forEach(c => {
+        const rings = c.geo.type === 'MultiPolygon'
+          ? c.geo.coordinates.map(p => p[0])
+          : [c.geo.coordinates[0]];
+        rings.forEach(ring => ring.forEach(([lon, lat]) => fn(lon, lat)));
       });
-      return `M${points.join('L')}Z`;
     }
 
     // ===== Country GeoJSON Data =====
@@ -3242,120 +3211,89 @@ const COUNTRY_DATA = {
 
     function renderMap() {
       const container = document.getElementById('map-container');
-      const svg = document.getElementById('map-svg');
       const rect = container.getBoundingClientRect();
       const width = rect.width || 800;
       const height = rect.height || 500;
+
+      // Initialize or update Leaflet map
+      if (!leafletMap) {
+        leafletMap = L.map('leaflet-map', {
+          zoomControl: false,
+          attributionControl: false,
+          dragging: false,
+          scrollWheelZoom: false,
+          doubleClickZoom: false,
+          touchZoom: false,
+          keyboard: false,
+          boxZoom: false
+        });
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+          maxZoom: 19
+        }).addTo(leafletMap);
+      }
+
+      // Fit to continent bounds
+      const countries = COUNTRY_DATA[gameState.continent] || [];
+      let minLon = Infinity, maxLon = -Infinity, minLat = Infinity, maxLat = -Infinity;
+      forEachCoord(countries, (lon, lat) => {
+        if (lon < minLon) minLon = lon;
+        if (lon > maxLon) maxLon = lon;
+        if (lat < minLat) minLat = lat;
+        if (lat > maxLat) maxLat = lat;
+      });
+      const pad = 5;
+      leafletMap.fitBounds([[minLat - pad, minLon - pad], [maxLat + pad, maxLon + pad]], { animate: false });
+
+      // Wait for map to load tiles, then render SVG overlay
+      setTimeout(() => {
+        renderSvgOverlay(countries);
+      }, 300);
+    }
+
+    function renderSvgOverlay(countries) {
+      const svg = document.getElementById('map-svg');
+      const container = document.getElementById('map-container');
+      const rect = container.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
 
       svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
       svg.setAttribute('width', width);
       svg.setAttribute('height', height);
 
-      // Determine bounding box for this continent's countries
-      const countries = COUNTRY_DATA[gameState.continent] || [];
-      let minLon = Infinity, maxLon = -Infinity, minLat = Infinity, maxLat = -Infinity;
-      function forEachCoord(geo, fn) {
-        if (geo.type === 'MultiPolygon') {
-          geo.coordinates.forEach(poly => poly[0].forEach(fn));
-        } else {
-          geo.coordinates[0].forEach(fn);
-        }
-      }
-      countries.forEach(c => {
-        forEachCoord(c.geo, ([lon, lat]) => {
-          if (lon < minLon) minLon = lon;
-          if (lon > maxLon) maxLon = lon;
-          if (lat < minLat) minLat = lat;
-          if (lat > maxLat) maxLat = lat;
+      let svgContent = '';
+      countries.forEach(country => {
+        const rings = country.geo.type === 'MultiPolygon'
+          ? country.geo.coordinates.map(p => p[0])
+          : [country.geo.coordinates[0]];
+
+        rings.forEach(ring => {
+          const points = ring.map(([lon, lat]) => {
+            const pt = leafletMap.latLngToContainerPoint([lat, lon]);
+            return `${pt.x.toFixed(1)},${pt.y.toFixed(1)}`;
+          });
+          if (points.length > 2) {
+            svgContent += `<path d="M${points.join('L')}Z" class="country-path" data-id="${country.id}" data-name="${country.name}" stroke-linejoin="round"/>`;
+          }
         });
       });
-      const padLon = (maxLon - minLon) * 0.15;
-      const padLat = (maxLat - minLat) * 0.15;
-      const viewMinLon = minLon - padLon;
-      const viewMaxLon = maxLon + padLon;
-      const viewMinLat = minLat - padLat;
-      const viewMaxLat = maxLat + padLat;
-
-      function projectLocal(lon, lat) {
-        const lambda = lon * Math.PI / 180;
-        const phi = lat * Math.PI / 180;
-        const [px, py] = naturalEarthProject(lambda, phi);
-        const [lxMin] = naturalEarthProject(viewMinLon * Math.PI / 180, 0);
-        const [lxMax] = naturalEarthProject(viewMaxLon * Math.PI / 180, 0);
-        const [, lyMin] = naturalEarthProject(0, viewMinLat * Math.PI / 180);
-        const [, lyMax] = naturalEarthProject(0, viewMaxLat * Math.PI / 180);
-        const scale = Math.min(width / (lxMax - lxMin), height / (lyMax - lyMin));
-        const cx = width / 2;
-        const cy = height / 2;
-        const centerLon = (viewMinLon + viewMaxLon) / 2 * Math.PI / 180;
-        const centerLat = (viewMinLat + viewMaxLat) / 2 * Math.PI / 180;
-        const [ccx, ccy] = naturalEarthProject(centerLon, centerLat);
-        return [cx + (px - ccx) * scale, cy - (py - ccy) * scale];
-      }
-
-      function geoToPath(geo) {
-        const allRings = geo.type === 'MultiPolygon'
-          ? geo.coordinates.map(p => p[0])
-          : [geo.coordinates[0]];
-
-        return allRings.map(ring => {
-          const pts = ring.map(([lon, lat]) => projectLocal(lon, lat));
-          if (pts.length < 3) return '';
-          // Build smooth SVG path using Catmull-Rom to Bezier conversion
-          let d = `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
-          for (let i = 0; i < pts.length - 1; i++) {
-            const p0 = pts[Math.max(0, i - 1)];
-            const p1 = pts[i];
-            const p2 = pts[Math.min(pts.length - 1, i + 1)];
-            const p3 = pts[Math.min(pts.length - 1, i + 2)];
-            const tension = 6;
-            const cp1x = p1[0] + (p2[0] - p0[0]) / tension;
-            const cp1y = p1[1] + (p2[1] - p0[1]) / tension;
-            const cp2x = p2[0] - (p3[0] - p1[0]) / tension;
-            const cp2y = p2[1] - (p3[1] - p1[1]) / tension;
-            d += ` C${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;
-          }
-          return d + 'Z';
-        }).filter(Boolean).join(' ');
-      }
-
-      // Light blue ocean background rect
-      let svgContent = `<rect x="0" y="0" width="${width}" height="${height}" fill="#DBEAFE" rx="12"/>`;
-
-      // Graticule grid lines
-      const gridColor = '#CBD5E1';
-      const gridOpacity = 0.3;
-      for (let lat = -80; lat <= 80; lat += 20) {
-        const [x1, y1] = projectLocal(viewMinLon, lat);
-        const [x2, y2] = projectLocal(viewMaxLon, lat);
-        svgContent += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${gridColor}" stroke-width="0.5" opacity="${gridOpacity}"/>`;
-      }
-      for (let lon = Math.ceil(viewMinLon/20)*20; lon <= viewMaxLon; lon += 20) {
-        const [x1, y1] = projectLocal(lon, viewMinLat);
-        const [x2, y2] = projectLocal(lon, viewMaxLat);
-        svgContent += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${gridColor}" stroke-width="0.5" opacity="${gridOpacity}"/>`;
-      }
-
-      // Render all continent countries as background
-      countries.forEach(country => {
-        const path = geoToPath(country.geo);
-        svgContent += `<path d="${path}" class="country-path" data-id="${country.id}" data-name="${country.name}" stroke-linejoin="round"/>`;
-      });
-
       svg.innerHTML = svgContent;
 
-      // Add hover events
+      // Enable pointer events on country paths
       svg.querySelectorAll('.country-path').forEach(path => {
+        path.style.pointerEvents = 'auto';
         path.addEventListener('mouseenter', () => {
           if (!path.classList.contains('filled')) {
-            path.style.fill = '#A5B4FC';
-            path.style.stroke = '#6366F1';
+            path.style.fill = 'rgba(99, 102, 241, 0.35)';
+            path.style.stroke = '#4F46E5';
+            path.style.strokeWidth = '2.5';
           }
         });
         path.addEventListener('mouseleave', () => {
           if (!path.classList.contains('filled')) {
-            path.style.fill = '#E8ECF8';
+            path.style.fill = 'rgba(99, 102, 241, 0.15)';
             path.style.stroke = '#6366F1';
+            path.style.strokeWidth = '1.5';
           }
         });
       });
@@ -3555,11 +3493,10 @@ const COUNTRY_DATA = {
     }
 
     function getCountryScreenPosition(countryId) {
-      const svg = document.getElementById('map-svg');
-      const path = svg.querySelector(`path[data-id="${countryId}"]`);
-      if (!path) return null;
-      const bbox = path.getBBox();
-      return [bbox.x + bbox.width / 2, bbox.y + bbox.height / 2];
+      const country = (COUNTRY_DATA[gameState.continent] || []).find(c => c.id === countryId);
+      if (!country || !leafletMap) return null;
+      const pt = leafletMap.latLngToContainerPoint([country.centroid[1], country.centroid[0]]);
+      return [pt.x, pt.y];
     }
 
     function placeFlag(countryId, targetId) {
@@ -3770,6 +3707,14 @@ const COUNTRY_DATA = {
         });
       });
     };
+
+    // ===== Window Resize Handler =====
+    window.addEventListener('resize', () => {
+      if (leafletMap && gameState.continent) {
+        leafletMap.invalidateSize();
+        setTimeout(() => renderSvgOverlay(COUNTRY_DATA[gameState.continent] || []), 100);
+      }
+    });
   </script>
 </body>
 </html>
