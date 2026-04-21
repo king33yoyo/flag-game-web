@@ -398,17 +398,18 @@
     }
 
     .country-path {
-      fill: #C7D2FE;
-      stroke: #818CF8;
-      stroke-width: 1.5;
+      fill: #E8ECF8;
+      stroke: #6366F1;
+      stroke-width: 2;
       stroke-linejoin: round;
       cursor: pointer;
       transition: fill 0.2s ease, stroke 0.2s ease;
     }
 
     .country-path:hover {
-      fill: #A5B4FC;
-      stroke: #6366F1;
+      fill: #C7D2FE;
+      stroke: #4F46E5;
+      stroke-width: 2.5;
     }
 
     .country-path.wrong-flash {
@@ -1014,7 +1015,7 @@ const COUNTRY_DATA = {
     },
     {
       "id": "ATF",
-      "name": "Fr. S. Antarctic Lands",
+      "name": "法属南部领地",
       "flag": "🏁",
       "centroid": [
         69.5,
@@ -1107,7 +1108,7 @@ const COUNTRY_DATA = {
     },
     {
       "id": "ESH",
-      "name": "W. Sahara",
+      "name": "西撒哈拉",
       "flag": "🏁",
       "centroid": [
         -12.1,
@@ -1406,7 +1407,7 @@ const COUNTRY_DATA = {
     },
     {
       "id": "LBR",
-      "name": "Liberia",
+      "name": "利比里亚",
       "flag": "🏁",
       "centroid": [
         -9.4,
@@ -1419,7 +1420,7 @@ const COUNTRY_DATA = {
     },
     {
       "id": "SLE",
-      "name": "Sierra Leone",
+      "name": "塞拉利昂",
       "flag": "🏁",
       "centroid": [
         -11.8,
@@ -1432,7 +1433,7 @@ const COUNTRY_DATA = {
     },
     {
       "id": "BFA",
-      "name": "Burkina Faso",
+      "name": "布基纳法索",
       "flag": "🏁",
       "centroid": [
         -1.8,
@@ -1471,7 +1472,7 @@ const COUNTRY_DATA = {
     },
     {
       "id": "GAB",
-      "name": "Gabon",
+      "name": "加蓬",
       "flag": "🏁",
       "centroid": [
         11.7,
@@ -1510,7 +1511,7 @@ const COUNTRY_DATA = {
     },
     {
       "id": "MWI",
-      "name": "Malawi",
+      "name": "马拉维",
       "flag": "🏁",
       "centroid": [
         34.2,
@@ -2060,7 +2061,7 @@ const COUNTRY_DATA = {
     },
     {
       "id": "PSE",
-      "name": "Palestine",
+      "name": "巴勒斯坦",
       "flag": "🇵🇸",
       "centroid": [
         35.3,
@@ -2177,7 +2178,7 @@ const COUNTRY_DATA = {
     },
     {
       "id": "LAO",
-      "name": "Laos",
+      "name": "老挝",
       "flag": "🏁",
       "centroid": [
         103.8,
@@ -2333,7 +2334,7 @@ const COUNTRY_DATA = {
     },
     {
       "id": "TJK",
-      "name": "Tajikistan",
+      "name": "塔吉克斯坦",
       "flag": "🏁",
       "centroid": [
         71.0,
@@ -2346,7 +2347,7 @@ const COUNTRY_DATA = {
     },
     {
       "id": "KGZ",
-      "name": "Kyrgyzstan",
+      "name": "吉尔吉斯斯坦",
       "flag": "🏁",
       "centroid": [
         74.6,
@@ -2450,7 +2451,7 @@ const COUNTRY_DATA = {
     },
     {
       "id": "TWN",
-      "name": "Taiwan",
+      "name": "台湾",
       "flag": "🇹🇼",
       "centroid": [
         121.0,
@@ -2608,7 +2609,7 @@ const COUNTRY_DATA = {
     },
     {
       "id": "FLK",
-      "name": "Falkland Is.",
+      "name": "福克兰群岛",
       "flag": "🇫🇰",
       "centroid": [
         -59.4,
@@ -3353,8 +3354,8 @@ const COUNTRY_DATA = {
         });
         path.addEventListener('mouseleave', () => {
           if (!path.classList.contains('filled')) {
-            path.style.fill = '#C7D2FE';
-            path.style.stroke = '#818CF8';
+            path.style.fill = '#E8ECF8';
+            path.style.stroke = '#6366F1';
           }
         });
       });
