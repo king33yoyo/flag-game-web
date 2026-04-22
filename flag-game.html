@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>世界插旗挑战</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,15 +17,35 @@
       box-sizing: border-box;
     }
 
+    /* ===== Design Tokens ===== */
+    :root {
+      --glass-bg: rgba(15, 23, 42, 0.75);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glass-blur: 20px;
+      --gold-primary: #F59E0B;
+      --gold-light: #FBBF24;
+      --gold-dark: #D97706;
+      --gold-glow: rgba(245, 158, 11, 0.4);
+      --dark-surface: #0F172A;
+      --dark-card: rgba(30, 41, 59, 0.8);
+      --text-primary: #F1F5F9;
+      --text-secondary: #94A3B8;
+      --cyan-fill: rgba(56, 189, 248, 0.12);
+      --cyan-stroke: rgba(56, 189, 248, 0.4);
+      --cyan-hover-fill: rgba(56, 189, 248, 0.3);
+      --cyan-hover-stroke: rgba(56, 189, 248, 0.7);
+    }
+
     /* ===== Base Styles ===== */
     body {
       font-family: 'Comic Neue', cursive;
-      background: #EEF2FF;
-      color: #1E1B4B;
+      background: #111111;
+      color: #E5E7EB;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      touch-action: none;
     }
 
     h1, h2, h3 {
@@ -37,6 +57,7 @@
       display: none;
       flex-direction: column;
       height: 100vh;
+      touch-action: none;
     }
 
     .page.visible {
@@ -72,13 +93,13 @@
       left: 0;
       right: 0;
       height: 60px;
-      background: #FFFFFF;
+      background: #1A1A2E;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 24px;
       z-index: 100;
-      box-shadow: 0 2px 12px rgba(79, 70, 229, 0.08);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
     }
 
     .nav-logo {
@@ -88,7 +109,7 @@
       font-family: 'Baloo 2', cursive;
       font-size: 20px;
       font-weight: 700;
-      color: #1E1B4B;
+      color: #FFFFFF;
       text-decoration: none;
       cursor: pointer;
     }
@@ -108,81 +129,171 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 80px 20px 40px;
-      gap: 32px;
+      justify-content: flex-start;
+      padding: 0 24px 24px;
+      gap: 0;
+      position: relative;
+      overflow: hidden;
+      background: #000000;
     }
 
-    .hero-text {
+    .home-content::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 800px;
+      height: 800px;
+      transform: translate(-50%, -50%);
+      background: url('https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=800&h=800&fit=crop') center/cover no-repeat;
+      border-radius: 50%;
+      opacity: 0.35;
+      pointer-events: none;
+    }
+
+    .home-content::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, transparent 15%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.95) 100%);
+      pointer-events: none;
+    }
+
+    .hero-section {
       text-align: center;
+      position: relative;
+      z-index: 1;
+      margin-top: 120px;
+      margin-bottom: 32px;
+      flex-shrink: 0;
     }
 
-    .hero-text h1 {
-      font-size: 2.4rem;
-      line-height: 1.3;
-      color: #1E1B4B;
+    .hero-badge {
+      display: inline-block;
+      padding: 8px 22px;
+      border-radius: 100px;
+      background: #3B82F6;
+      color: #FFFFFF;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      margin-bottom: 20px;
+      font-family: 'SimHei', 'Microsoft YaHei', sans-serif;
     }
 
-    .hero-text h1 .highlight {
-      color: #F97316;
+    .hero-section h1 {
+      font-size: 3.8rem;
+      line-height: 1.2;
+      color: #FFFFFF;
+      margin-bottom: 16px;
+      font-family: 'SimHei', 'Microsoft YaHei', sans-serif;
     }
 
-    .hero-text p {
-      font-size: 1.15rem;
-      color: #6366F1;
-      margin-top: 8px;
+    .hero-section h1 .highlight {
+      background: linear-gradient(135deg, #F97316, #F59E0B);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-subtitle {
+      font-size: 1.4rem;
+      color: #9CA3AF;
       font-weight: 400;
+      font-family: 'SimHei', 'Microsoft YaHei', sans-serif;
     }
 
     .continent-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      max-width: 680px;
+      gap: 25px;
+      max-width: 1200px;
       width: 100%;
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      align-content: end;
+      padding-bottom: 32px;
     }
 
     .continent-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 16px;
       cursor: pointer;
-      transition: transform 0.2s ease;
+      height: 250px;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+      opacity: 0;
+      animation: cardEntry 0.5s ease forwards;
+    }
+
+    .continent-card:nth-child(1) { animation-delay: 0.05s; }
+    .continent-card:nth-child(2) { animation-delay: 0.1s; }
+    .continent-card:nth-child(3) { animation-delay: 0.15s; }
+    .continent-card:nth-child(4) { animation-delay: 0.2s; }
+    .continent-card:nth-child(5) { animation-delay: 0.25s; }
+    .continent-card:nth-child(6) { animation-delay: 0.3s; }
+
+    @keyframes cardEntry {
+      from { opacity: 0; transform: translateY(24px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     .continent-card:hover {
-      transform: translateY(-4px);
+      transform: translateY(-6px) scale(1.03);
+      box-shadow: 0 12px 32px rgba(59, 130, 246, 0.25);
     }
 
-    .continent-card .card-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      margin-bottom: 10px;
+    .continent-card .card-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      transition: transform 0.4s ease;
+    }
+
+    .continent-card:hover .card-bg {
+      transform: scale(1.08);
+    }
+
+    .continent-card .card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.7) 100%);
+    }
+
+    .continent-card .card-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px;
+      z-index: 1;
     }
 
     .continent-card .card-name {
-      font-family: 'Baloo 2', cursive;
+      font-family: 'SimHei', 'Microsoft YaHei', sans-serif;
       font-weight: 700;
-      font-size: 1rem;
+      font-size: 1.3rem;
+      color: #FFFFFF;
       margin-bottom: 4px;
     }
 
     .continent-card .card-count {
-      font-size: 0.85rem;
-      color: #6B7280;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.7);
+      font-family: 'SimHei', 'Microsoft YaHei', sans-serif;
     }
 
     /* ===== Slot Pulse Animation ===== */
-    @keyframes slot-pulse {
-      0%, 100% { border-color: #818CF8; transform: translate(-50%, -50%) scale(1); }
-      50% { border-color: #C7D2FE; transform: translate(-50%, -50%) scale(1.08); }
+    @keyframes gold-pulse {
+      0%, 100% { border-color: var(--gold-primary); box-shadow: 0 0 8px var(--gold-glow); transform: translate(-50%, -50%) scale(1); }
+      50% { border-color: var(--gold-light); box-shadow: 0 0 20px var(--gold-glow); transform: translate(-50%, -50%) scale(1.1); }
+    }
+
+    @keyframes card-glow {
+      0%, 100% { box-shadow: 0 0 12px rgba(245, 158, 11, 0.15); }
+      50% { box-shadow: 0 0 24px rgba(245, 158, 11, 0.3); }
     }
 
     @keyframes flag-drop {
@@ -204,13 +315,20 @@
       pointer-events: none;
       transform: scale(1.15) rotate(-2deg);
       opacity: 0.92;
-      filter: drop-shadow(0 6px 12px rgba(79, 70, 229, 0.3));
+      filter: drop-shadow(0 6px 12px rgba(245, 158, 11, 0.3));
+      background: var(--dark-card);
+      border: 1px solid var(--gold-primary);
+      border-radius: 10px;
+      padding: 6px 12px;
+      color: var(--text-primary);
+      font-family: 'Baloo 2', cursive;
+      font-weight: 600;
     }
 
     /* Country highlight for drag */
     .country-path.drag-highlight {
-      fill: rgba(124, 58, 237, 0.3);
-      stroke: #7C3AED;
+      fill: rgba(56, 189, 248, 0.35);
+      stroke: rgba(56, 189, 248, 0.8);
       stroke-width: 2.5;
     }
 
@@ -222,168 +340,348 @@
     }
 
     /* ===== Game Page ===== */
+    #page-game {
+      flex-direction: row !important;
+      padding-top: 60px;
+    }
+
+    .map-wrapper {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
     .game-header {
-      height: 56px;
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      height: 48px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 20px;
-      background: #FFFFFF;
-      box-shadow: 0 2px 12px rgba(79, 70, 229, 0.08);
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
       z-index: 10;
-      flex-shrink: 0;
+      min-width: 280px;
+      gap: 12px;
+    }
+
+    .game-header .back-btn {
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: color 0.2s;
+      padding: 4px 8px;
+    }
+
+    .game-header .back-btn:hover {
+      color: var(--gold-primary);
     }
 
     .game-header .region-name {
       font-family: 'Baloo 2', cursive;
       font-weight: 700;
-      font-size: 1.1rem;
-      color: #1E1B4B;
+      font-size: 1rem;
+      color: var(--text-primary);
+    }
+
+    .game-header .header-info {
+      display: flex;
+      align-items: center;
+      gap: 14px;
     }
 
     .game-header .score-display {
       font-family: 'Baloo 2', cursive;
       font-weight: 600;
-      font-size: 1rem;
-      color: #4F46E5;
+      font-size: 0.9rem;
+      color: var(--gold-primary);
     }
 
     .game-header .timer-display {
       font-family: 'Baloo 2', cursive;
       font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .game-header .hint-toggle {
+      background: none;
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      color: var(--gold-primary);
       font-size: 1rem;
-      color: #6B7280;
+      cursor: pointer;
+      padding: 4px 8px;
+      transition: all 0.2s;
+      opacity: 1;
+    }
+
+    .game-header .hint-toggle.off {
+      opacity: 0.4;
+      color: var(--text-secondary);
+    }
+
+    .game-header .hint-toggle:hover {
+      border-color: var(--gold-primary);
     }
 
     .map-container {
       flex: 1;
       position: relative;
       overflow: hidden;
+      touch-action: none;
     }
 
     .slot-marker {
       position: absolute;
-      width: 36px;
-      height: 36px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.9);
-      border: 3px solid #818CF8;
+      background: rgba(15, 23, 42, 0.85);
+      border: 2px solid var(--gold-primary);
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: 'Baloo 2', cursive;
       font-weight: 700;
-      font-size: 16px;
-      color: #818CF8;
+      font-size: 14px;
+      color: var(--gold-primary);
       transform: translate(-50%, -50%);
-      animation: slot-pulse 2s ease-in-out infinite;
+      animation: gold-pulse 2s ease-in-out infinite;
       pointer-events: auto;
       cursor: pointer;
-      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15);
+      box-shadow: 0 0 12px var(--gold-glow);
     }
 
     .slot-marker.filled {
-      background: #4F46E5;
-      border-color: #4F46E5;
+      background: rgba(34, 197, 94, 0.3);
+      border-color: #22C55E;
       color: #FFFFFF;
       animation: none;
-      font-size: 20px;
+      font-size: 16px;
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.3);
     }
 
     .slot-marker.wrong {
-      background: #FEE2E2;
+      background: rgba(239, 68, 68, 0.2);
       border-color: #EF4444;
       color: #EF4444;
       animation: none;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
     }
 
-    .flag-tray {
-      height: 80px;
-      background: #FFFFFF;
-      border-top: 3px solid #E0E7FF;
-      display: flex;
-      align-items: center;
-      padding: 0 16px;
-      gap: 12px;
+    /* ===== Task Panel ===== */
+    .task-panel {
+      width: 280px;
       flex-shrink: 0;
-      box-shadow: 0 -2px 12px rgba(79, 70, 229, 0.06);
-    }
-
-    .tray-label {
-      writing-mode: vertical-rl;
-      font-family: 'Baloo 2', cursive;
-      font-weight: 600;
-      font-size: 0.85rem;
-      color: #818CF8;
-      letter-spacing: 2px;
-      user-select: none;
-    }
-
-    .flag-chips-container {
-      flex: 1;
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      border-right: 1px solid var(--glass-border);
       display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding: 4px 0;
-      align-items: center;
+      flex-direction: column;
+      padding: 20px 16px;
+      gap: 16px;
+      overflow-y: auto;
+      touch-action: pan-y;
     }
 
-    .flag-chips-container::-webkit-scrollbar {
-      height: 4px;
+    .task-panel::-webkit-scrollbar {
+      width: 4px;
     }
 
-    .flag-chips-container::-webkit-scrollbar-thumb {
-      background: #C7D2FE;
+    .task-panel::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
       border-radius: 2px;
     }
 
-    .flag-chip {
+    .current-flag-card {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 6px;
-      padding: 6px 14px;
-      background: #F5F3FF;
-      border: 2px solid rgba(255, 255, 255, 0.7);
-      border-radius: 14px;
+      padding: 20px 16px;
+      background: var(--dark-card);
+      border: 1px solid var(--gold-primary);
+      border-radius: 16px;
+      animation: card-glow 2s ease-in-out infinite;
+      text-align: center;
       cursor: grab;
       user-select: none;
-      white-space: nowrap;
+    }
+
+    .current-flag-card .current-flag-emoji {
+      font-size: 3rem;
+      margin-bottom: 8px;
+    }
+
+    .current-flag-card .current-flag-name {
       font-family: 'Baloo 2', cursive;
-      font-weight: 500;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--text-primary);
+    }
+
+    .current-flag-card .drag-hint {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .flag-queue {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .flag-queue-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      user-select: none;
+      transition: background 0.2s, border-color 0.2s;
+      border: 1px solid transparent;
       font-size: 0.85rem;
-      color: #1E1B4B;
-      box-shadow:
-        4px 4px 10px rgba(79, 70, 229, 0.08),
-        inset -2px -2px 4px rgba(0, 0, 0, 0.02),
-        inset 2px 2px 4px rgba(255, 255, 255, 0.6);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      color: var(--text-secondary);
     }
 
-    .flag-chip:hover {
-      transform: translateY(-2px);
-      box-shadow:
-        4px 6px 14px rgba(79, 70, 229, 0.12),
-        inset -2px -2px 4px rgba(0, 0, 0, 0.02),
-        inset 2px 2px 4px rgba(255, 255, 255, 0.6);
+    .flag-queue-item.active {
+      background: rgba(245, 158, 11, 0.1);
+      border-color: rgba(245, 158, 11, 0.3);
+      color: var(--text-primary);
+      cursor: grab;
     }
 
-    .flag-chip:active {
-      cursor: grabbing;
-      transform: scale(0.95);
+    .flag-queue-item.completed {
+      text-decoration: line-through;
+      opacity: 0.5;
+      cursor: default;
     }
 
-    .flag-chip .chip-emoji {
+    .flag-queue-item .queue-emoji {
       font-size: 1.2rem;
     }
 
-    .flag-chip.placed {
-      opacity: 0.3;
-      pointer-events: none;
+    .flag-queue-item .queue-name {
+      flex: 1;
+      font-family: 'Baloo 2', cursive;
+      font-weight: 500;
+    }
+
+    .progress-bar-container {
+      margin-top: auto;
+      padding-top: 8px;
+    }
+
+    .progress-bar-container .progress-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .progress-bar {
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--gold-dark), var(--gold-light));
+      transition: width 0.4s ease;
+    }
+
+    /* ===== Drag Hit Area ===== */
+    .drag-hit-area {
+      position: absolute;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 5;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+
+    /* ===== Zoom Controls ===== */
+    .zoom-controls {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 8px;
+    }
+
+    .zoom-controls button {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: none;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .zoom-controls button:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .zoom-controls input[type="range"] {
+      writing-mode: vertical-lr;
+      direction: rtl;
+      width: 28px;
+      height: 100px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent;
+    }
+
+    .zoom-controls input[type="range"]::-webkit-slider-runnable-track {
+      width: 4px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 2px;
+    }
+
+    .zoom-controls input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--gold-primary);
+      cursor: pointer;
+      margin-left: -5px;
     }
 
     .country-path {
-      fill: rgba(99, 102, 241, 0.15);
-      stroke: #6366F1;
+      fill: rgba(56, 189, 248, 0.12);
+      stroke: rgba(56, 189, 248, 0.4);
       stroke-width: 1.5;
       stroke-linejoin: round;
       cursor: pointer;
@@ -391,13 +689,13 @@
     }
 
     .country-path:hover {
-      fill: rgba(99, 102, 241, 0.35);
-      stroke: #4F46E5;
+      fill: rgba(56, 189, 248, 0.3);
+      stroke: rgba(56, 189, 248, 0.7);
       stroke-width: 2.5;
     }
 
     .country-path.wrong-flash {
-      fill: #FCA5A5;
+      fill: rgba(239, 68, 68, 0.3);
       stroke: #EF4444;
     }
 
@@ -422,6 +720,7 @@
       padding: 80px 20px 40px;
       gap: 24px;
       overflow-y: auto;
+      background: var(--dark-surface);
     }
 
     .result-card {
@@ -429,10 +728,14 @@
       width: 100%;
       border-radius: 24px;
       overflow: hidden;
+      background: var(--dark-card);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
     }
 
     .result-header {
-      background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
       padding: 28px 24px 20px;
       text-align: center;
       position: relative;
@@ -445,13 +748,13 @@
 
     .result-header h2 {
       font-size: 1.6rem;
-      color: #1E1B4B;
+      color: var(--text-primary);
       margin-bottom: 4px;
     }
 
     .result-header .result-subtitle {
       font-size: 0.9rem;
-      color: #6366F1;
+      color: var(--gold-primary);
       margin-bottom: 16px;
     }
 
@@ -470,27 +773,27 @@
       width: 76px;
       height: 76px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+      background: var(--dark-surface);
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: 'Baloo 2', cursive;
       font-weight: 700;
       font-size: 1.2rem;
-      color: #4F46E5;
+      color: #FFFFFF;
     }
 
     .result-stats {
       display: flex;
       gap: 0;
       padding: 16px 0;
-      border-bottom: 2px solid #F3F4F6;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .result-stat {
       flex: 1;
       text-align: center;
-      border-right: 2px solid #F3F4F6;
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .result-stat:last-child {
@@ -505,13 +808,13 @@
 
     .result-stat .stat-label {
       font-size: 0.75rem;
-      color: #6B7280;
+      color: var(--text-secondary);
       margin-top: 2px;
     }
 
-    .stat-correct .stat-value { color: #16A34A; }
-    .stat-wrong .stat-value { color: #DC2626; }
-    .stat-time .stat-value { color: #EA580C; }
+    .stat-correct .stat-value { color: #4ADE80; }
+    .stat-wrong .stat-value { color: #F87171; }
+    .stat-time .stat-value { color: var(--gold-primary); }
 
     .result-review {
       padding: 16px 20px;
@@ -524,7 +827,7 @@
     }
 
     .result-review::-webkit-scrollbar-thumb {
-      background: #C7D2FE;
+      background: rgba(255, 255, 255, 0.15);
       border-radius: 2px;
     }
 
@@ -533,7 +836,7 @@
       align-items: center;
       gap: 10px;
       padding: 8px 0;
-      border-bottom: 1px solid #F9FAFB;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     .review-item:last-child {
@@ -552,13 +855,13 @@
     }
 
     .review-icon.correct {
-      background: #DCFCE7;
-      color: #16A34A;
+      background: rgba(34, 197, 94, 0.2);
+      color: #4ADE80;
     }
 
     .review-icon.wrong {
-      background: #FEE2E2;
-      color: #DC2626;
+      background: rgba(239, 68, 68, 0.2);
+      color: #F87171;
     }
 
     .review-flag {
@@ -570,12 +873,12 @@
       font-family: 'Baloo 2', cursive;
       font-weight: 600;
       font-size: 0.9rem;
-      color: #1E1B4B;
+      color: var(--text-primary);
     }
 
     .review-detail {
       font-size: 0.75rem;
-      color: #9CA3AF;
+      color: var(--text-secondary);
     }
 
     .result-actions {
@@ -605,27 +908,30 @@
     }
 
     .btn-home {
-      background: #FFFFFF;
-      color: #4F46E5;
-      border: 2px solid #E0E7FF !important;
-      box-shadow: 4px 4px 10px rgba(79,70,229,0.08), inset -2px -2px 4px rgba(0,0,0,0.02), inset 2px 2px 4px rgba(255,255,255,0.6);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-primary);
+      border: 1px solid var(--glass-border) !important;
     }
 
     .btn-retry {
-      background: #4F46E5;
-      color: #FFFFFF;
-      border: 2px solid rgba(255,255,255,0.2) !important;
-      box-shadow: 8px 8px 20px rgba(79,70,229,0.15), inset -4px -4px 8px rgba(0,0,0,0.1), inset 4px 4px 8px rgba(255,255,255,0.15);
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary));
+      color: #000000;
+      border: none !important;
     }
 
     /* ===== Responsive Design ===== */
     @media (max-width: 640px) {
-      .hero-text h1 {
-        font-size: 1.7rem;
+      .hero-section h1 {
+        font-size: 1.8rem;
       }
 
-      .hero-text p {
+      .hero-subtitle {
         font-size: 1rem;
+      }
+
+      .hero-badge {
+        font-size: 0.75rem;
+        padding: 4px 12px;
       }
 
       .continent-grid {
@@ -634,17 +940,11 @@
       }
 
       .continent-card {
-        padding: 14px 10px;
-      }
-
-      .continent-card .card-icon {
-        width: 44px;
-        height: 44px;
-        font-size: 22px;
+        height: 100px;
       }
 
       .continent-card .card-name {
-        font-size: 0.9rem;
+        font-size: 0.95rem;
       }
 
       .nav-bar {
@@ -663,42 +963,80 @@
 
       .home-content {
         padding: 64px 16px 24px;
-        gap: 24px;
+        gap: 28px;
+      }
+
+      #page-game {
+        flex-direction: column !important;
+      }
+
+      .task-panel {
+        width: 100%;
+        max-height: 160px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        padding: 12px;
+        gap: 8px;
+        border-right: none;
+        border-bottom: 1px solid var(--glass-border);
+      }
+
+      .current-flag-card {
+        flex-direction: row;
+        padding: 8px 12px;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+
+      .current-flag-card .current-flag-emoji {
+        font-size: 1.5rem;
+        margin-bottom: 0;
+      }
+
+      .current-flag-card .current-flag-name {
+        font-size: 0.85rem;
+      }
+
+      .current-flag-card .drag-hint {
+        display: none;
+      }
+
+      .flag-queue {
+        flex-direction: row;
+        overflow-x: auto;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .flag-queue-item {
+        flex-shrink: 0;
+        padding: 6px 10px;
+      }
+
+      .progress-bar-container {
+        display: none;
       }
 
       .game-header {
-        height: 48px;
-        padding: 0 12px;
+        min-width: auto;
+        width: calc(100% - 24px);
+        left: 12px;
+        transform: none;
       }
 
       .game-header .region-name {
-        font-size: 0.95rem;
+        font-size: 0.85rem;
       }
 
       .game-header .score-display,
       .game-header .timer-display {
-        font-size: 0.85rem;
-      }
-
-      .flag-tray {
-        height: 70px;
-        padding: 0 10px;
-        gap: 8px;
-      }
-
-      .flag-chip {
-        padding: 5px 10px;
-        font-size: 0.78rem;
-      }
-
-      .flag-chip .chip-emoji {
-        font-size: 1rem;
+        font-size: 0.8rem;
       }
 
       .slot-marker {
-        width: 30px;
-        height: 30px;
-        font-size: 13px;
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
       }
 
       .result-content {
@@ -733,6 +1071,15 @@
         max-height: 180px;
         padding: 12px 16px;
       }
+
+      .zoom-controls {
+        right: 8px;
+        bottom: 8px;
+      }
+
+      .zoom-controls input[type="range"] {
+        height: 70px;
+      }
     }
 
     /* ===== Reduced Motion ===== */
@@ -762,9 +1109,10 @@
   <!-- Page: Home -->
   <section id="page-home" class="page visible">
     <div class="home-content">
-      <div class="hero-text">
+      <div class="hero-section">
+        <div class="hero-badge">WORLD GEOGRAPHY CHALLENGE</div>
         <h1>把国旗插到<span class="highlight">正确的位置</span></h1>
-        <p>选择一个大洲，开始挑战吧！</p>
+        <p class="hero-subtitle">选择一个大洲，开始你的地理之旅</p>
       </div>
       <div class="continent-grid" id="continent-grid">
         <!-- Rendered by JS -->
@@ -774,27 +1122,38 @@
 
   <!-- Page: Game -->
   <section id="page-game" class="page">
-    <div class="game-header">
-      <div class="region-name" id="game-region-name"></div>
-      <div class="score-display" id="game-score">0 / 0</div>
-      <div class="timer-display" id="game-timer">00:00</div>
+    <div class="task-panel" id="task-panel">
+      <!-- Rendered by JS renderTaskPanel() -->
     </div>
-    <div class="map-container" id="map-container">
-      <div id="leaflet-map" style="position:absolute;inset:0;z-index:1"></div>
-      <svg id="map-svg" style="position:absolute;inset:0;z-index:2;pointer-events:none" preserveAspectRatio="xMidYMid meet"></svg>
-      <div id="flag-markers" style="position:absolute;inset:0;z-index:3;pointer-events:none"></div>
-      <div id="slot-markers" style="position:absolute;inset:0;z-index:4;pointer-events:none"></div>
-    </div>
-    <div class="flag-tray">
-      <div class="tray-label">拖拽区</div>
-      <div class="flag-chips-container" id="flag-chips"></div>
+    <div class="map-wrapper">
+      <div class="game-header">
+        <div class="back-btn" onclick="goHome()">←</div>
+        <div class="region-name" id="game-region-name"></div>
+        <div class="header-info">
+          <div class="score-display">🏆 <span id="game-score">0 / 0</span></div>
+          <div class="timer-display">⏱ <span id="game-timer">00:00</span></div>
+          <button class="hint-toggle" id="hint-toggle" onclick="toggleHints()" title="显示/隐藏提示">💡</button>
+        </div>
+      </div>
+      <div class="map-container" id="map-container">
+        <div id="leaflet-map" style="position:absolute;inset:0;z-index:1"></div>
+        <svg id="map-svg" style="position:absolute;inset:0;z-index:2;pointer-events:none" preserveAspectRatio="xMidYMid meet"></svg>
+        <div id="flag-markers" style="position:absolute;inset:0;z-index:3;pointer-events:none"></div>
+        <div id="slot-markers" style="position:absolute;inset:0;z-index:4;pointer-events:none"></div>
+        <div id="drag-hit-areas" style="position:absolute;inset:0;z-index:5;pointer-events:none"></div>
+      </div>
+      <div class="zoom-controls">
+        <button onclick="zoomMap(1)">+</button>
+        <input type="range" id="zoom-slider" min="1" max="10" step="0.5" value="3" oninput="setMapZoom(this.value)">
+        <button onclick="zoomMap(-1)">−</button>
+      </div>
     </div>
   </section>
 
   <!-- Page: Result -->
   <section id="page-result" class="page">
     <div class="result-content">
-      <div class="result-card clay">
+      <div class="result-card">
         <div class="result-header">
           <div class="trophy">&#127942;</div>
           <h2 id="result-title">挑战完成！</h2>
@@ -885,12 +1244,12 @@
 
     // ===== Continent Data =====
     const CONTINENTS = {
-      asia:         { name: "亚洲",   emoji: "🌏", color: "#FEE2E2", textColor: "#991B1B", count: 48 },
-      europe:       { name: "欧洲",   emoji: "🌍", color: "#DBEAFE", textColor: "#1E3A8A", count: 44 },
-      africa:       { name: "非洲",   emoji: "🌍", color: "#FEF3C7", textColor: "#92400E", count: 54 },
-      southAmerica: { name: "南美洲", emoji: "🌎", color: "#D1FAE5", textColor: "#065F46", count: 12 },
-      northAmerica: { name: "北美洲", emoji: "🌎", color: "#EDE9FE", textColor: "#5B21B6", count: 23 },
-      oceania:      { name: "大洋洲", emoji: "🌏", color: "#CFFAFE", textColor: "#155E75", count: 14 }
+      asia:         { name: "亚洲",   emoji: "🌏", color: "#FEE2E2", textColor: "#991B1B", count: 47, image: "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=600&h=400&fit=crop" },
+      europe:       { name: "欧洲",   emoji: "🌍", color: "#DBEAFE", textColor: "#1E3A8A", count: 44, image: "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=600&h=400&fit=crop" },
+      africa:       { name: "非洲",   emoji: "🌍", color: "#FEF3C7", textColor: "#92400E", count: 54, image: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=600&h=400&fit=crop" },
+      southAmerica: { name: "南美洲", emoji: "🌎", color: "#D1FAE5", textColor: "#065F46", count: 12, image: "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=600&h=400&fit=crop" },
+      northAmerica: { name: "北美洲", emoji: "🌎", color: "#EDE9FE", textColor: "#5B21B6", count: 23, image: "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=600&h=400&fit=crop" },
+      oceania:      { name: "大洋洲", emoji: "🌏", color: "#CFFAFE", textColor: "#155E75", count: 14, image: "https://images.unsplash.com/photo-1580237541049-2d715a09486e?w=600&h=400&fit=crop" }
     };
 
     // ===== Game State =====
@@ -923,18 +1282,22 @@
     function renderContinentGrid() {
       const grid = document.getElementById('continent-grid');
       grid.innerHTML = '';
+      let index = 0;
       for (const [key, continent] of Object.entries(CONTINENTS)) {
         const card = document.createElement('div');
-        card.className = 'continent-card clay';
+        card.className = 'continent-card';
+        card.style.animationDelay = (0.05 + index * 0.06) + 's';
         card.onclick = () => startGame(key);
         card.innerHTML = `
-          <div class="card-icon" style="background:${continent.color}">
-            <span>${continent.emoji}</span>
+          <div class="card-bg" style="background-image:url('${continent.image}')"></div>
+          <div class="card-overlay"></div>
+          <div class="card-info">
+            <div class="card-name">${continent.name}</div>
+            <div class="card-count">${continent.count} 个国家</div>
           </div>
-          <div class="card-name" style="color:${continent.textColor}">${continent.name}</div>
-          <div class="card-count">${continent.count} 个国家</div>
         `;
         grid.appendChild(card);
+        index++;
       }
     }
 
@@ -985,7 +1348,7 @@ const COUNTRY_DATA = {
     {
       "id": "ATF",
       "name": "法属南部领地",
-      "flag": "🏁",
+      "flag": "🇹🇫",
       "centroid": [
         69.5,
         -49.3
@@ -1078,7 +1441,7 @@ const COUNTRY_DATA = {
     {
       "id": "ESH",
       "name": "西撒哈拉",
-      "flag": "🏁",
+      "flag": "🇪🇭",
       "centroid": [
         -12.1,
         24.3
@@ -1377,7 +1740,7 @@ const COUNTRY_DATA = {
     {
       "id": "LBR",
       "name": "利比里亚",
-      "flag": "🏁",
+      "flag": "🇱🇷",
       "centroid": [
         -9.4,
         6.4
@@ -1390,7 +1753,7 @@ const COUNTRY_DATA = {
     {
       "id": "SLE",
       "name": "塞拉利昂",
-      "flag": "🏁",
+      "flag": "🇸🇱",
       "centroid": [
         -11.8,
         8.5
@@ -1403,7 +1766,7 @@ const COUNTRY_DATA = {
     {
       "id": "BFA",
       "name": "布基纳法索",
-      "flag": "🏁",
+      "flag": "🇧🇫",
       "centroid": [
         -1.8,
         12.3
@@ -1442,7 +1805,7 @@ const COUNTRY_DATA = {
     {
       "id": "GAB",
       "name": "加蓬",
-      "flag": "🏁",
+      "flag": "🇬🇦",
       "centroid": [
         11.7,
         -0.6
@@ -1481,7 +1844,7 @@ const COUNTRY_DATA = {
     {
       "id": "MWI",
       "name": "马拉维",
-      "flag": "🏁",
+      "flag": "🇲🇼",
       "centroid": [
         34.2,
         -13.2
@@ -2148,7 +2511,7 @@ const COUNTRY_DATA = {
     {
       "id": "LAO",
       "name": "老挝",
-      "flag": "🏁",
+      "flag": "🇱🇦",
       "centroid": [
         103.8,
         18.4
@@ -2304,7 +2667,7 @@ const COUNTRY_DATA = {
     {
       "id": "TJK",
       "name": "塔吉克斯坦",
-      "flag": "🏁",
+      "flag": "🇹🇯",
       "centroid": [
         71.0,
         38.6
@@ -2317,7 +2680,7 @@ const COUNTRY_DATA = {
     {
       "id": "KGZ",
       "name": "吉尔吉斯斯坦",
-      "flag": "🏁",
+      "flag": "🇰🇬",
       "centroid": [
         74.6,
         41.5
@@ -2416,19 +2779,6 @@ const COUNTRY_DATA = {
       "geo": {
         "type": "MultiPolygon",
         "coordinates": [[[[109.48,18.2],[108.66,18.51],[108.63,19.37],[109.12,19.82],[110.21,20.1],[110.79,20.08],[111.01,19.7],[110.57,19.26],[110.34,18.68],[109.48,18.2]]],[[[80.26,42.35],[81.95,45.32],[85.72,47.45],[87.75,49.3],[90.97,46.89],[93.48,44.98],[96.35,42.73],[101.83,42.51],[106.13,42.13],[111.13,43.41],[111.87,45.1],[115.99,45.73],[119.66,46.69],[117.3,47.7],[116.19,49.13],[119.28,50.58],[120.18,52.75],[125.07,53.16],[127.29,50.74],[130.99,47.79],[134.5,47.58],[131.88,45.32],[130.63,42.9],[128.05,41.99],[126.18,41.11],[122.13,39.17],[122.17,40.42],[119.02,39.25],[118.88,37.9],[121.71,37.48],[120.64,36.11],[120.62,33.38],[121.26,30.68],[121.68,28.23],[118.66,24.55],[114.15,22.22],[110.79,21.4],[109.86,21.4],[106.57,22.22],[104.48,22.82],[101.65,22.32],[101.15,21.85],[99.53,22.95],[97.72,25.08],[98.25,27.75],[96.59,28.83],[93.41,28.64],[90.73,28.06],[88.73,28.09],[85.01,28.64],[82.33,30.12],[78.74,31.52],[78.81,33.51],[75.9,36.67],[74.86,38.38],[73.96,39.66],[76.53,40.43],[80.12,42.12],[80.26,42.35]]]]
-      }
-    },
-    {
-      "id": "TWN",
-      "name": "台湾",
-      "flag": "🇹🇼",
-      "centroid": [
-        121.0,
-        23.7
-      ],
-      "geo": {
-        "type": "Polygon",
-        "coordinates": [[[121.78,24.39],[121.18,22.79],[120.75,21.97],[120.22,22.81],[120.11,23.56],[120.69,24.54],[121.5,25.3],[121.95,25.0],[121.78,24.39]]]
       }
     },
     {
@@ -3198,15 +3548,14 @@ const COUNTRY_DATA = {
     function initGame() {
       const allCountries = COUNTRY_DATA[gameState.continent] || [];
       const shuffled = [...allCountries].sort(() => Math.random() - 0.5);
-      gameState.countries = shuffled.slice(0, Math.min(10, shuffled.length));
+      gameState.countries = shuffled.slice(0, Math.min(10, shuffled.length)).map(c => ({...c, placed: false}));
       gameState.score = 0;
       gameState.errors = [];
       gameState.isComplete = false;
       gameState.startTime = Date.now();
       startTimer();
       renderMap();
-      renderSlotMarkers();
-      renderTray();
+      renderTaskPanel();
     }
 
     function renderMap() {
@@ -3220,15 +3569,17 @@ const COUNTRY_DATA = {
         leafletMap = L.map('leaflet-map', {
           zoomControl: false,
           attributionControl: false,
-          dragging: false,
-          scrollWheelZoom: false,
+          dragging: true,
+          scrollWheelZoom: true,
           doubleClickZoom: false,
-          touchZoom: false,
+          touchZoom: true,
           keyboard: false,
-          boxZoom: false
+          boxZoom: false,
+          zoomSnap: 0.5
         });
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-          maxZoom: 19
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+          maxZoom: 19,
+          opacity: 0.7
         }).addTo(leafletMap);
       }
 
@@ -3236,17 +3587,55 @@ const COUNTRY_DATA = {
       const countries = COUNTRY_DATA[gameState.continent] || [];
       let minLon = Infinity, maxLon = -Infinity, minLat = Infinity, maxLat = -Infinity;
       forEachCoord(countries, (lon, lat) => {
+        // For Europe, exclude Russia's far-east (negative longitudes) and clip to main Europe
+        if (gameState.continent === 'europe') {
+          if (lon < -10) return;  // skip far-east Russia, Kamchatka etc.
+          if (lon > 45) lon = 45;
+          if (lat > 72) lat = 72;
+        }
         if (lon < minLon) minLon = lon;
         if (lon > maxLon) maxLon = lon;
         if (lat < minLat) minLat = lat;
         if (lat > maxLat) maxLat = lat;
       });
-      const pad = 5;
+      const pad = gameState.continent === 'europe' ? 2 : 1;
       leafletMap.fitBounds([[minLat - pad, minLon - pad], [maxLat + pad, maxLon + pad]], { animate: false });
+      const zoomByContinent = { asia: 0.25, africa: 0.2, oceania: 0.05, 'south-america': 0.2, 'north-america': 0.2 };
+      const extraZoom = zoomByContinent[gameState.continent] || 0;
+      if (extraZoom) {
+        leafletMap.setZoom(leafletMap.getZoom() + extraZoom, { animate: false });
+      }
+
+      // Sync zoom slider
+      const slider = document.getElementById('zoom-slider');
+      if (slider) {
+        slider.min = 1;
+        slider.max = 8;
+        slider.step = 0.5;
+        slider.value = leafletMap.getZoom();
+      }
+
+      // Listen for zoom changes to sync SVG overlay and markers
+      if (!leafletMap._zoomHandlerAttached) {
+        leafletMap.on('zoomend', () => {
+          const slider = document.getElementById('zoom-slider');
+          if (slider) slider.value = leafletMap.getZoom();
+          renderSvgOverlay(COUNTRY_DATA[gameState.continent] || []);
+          renderSlotMarkers();
+          renderPlacedFlags();
+        });
+        leafletMap.on('moveend', () => {
+          renderSvgOverlay(COUNTRY_DATA[gameState.continent] || []);
+          renderSlotMarkers();
+          renderPlacedFlags();
+        });
+        leafletMap._zoomHandlerAttached = true;
+      }
 
       // Wait for map to load tiles, then render SVG overlay
       setTimeout(() => {
         renderSvgOverlay(countries);
+        renderSlotMarkers(); // 必须在 SVG 渲染之后，才能绑定 country-path 事件
       }, 300);
     }
 
@@ -3284,70 +3673,100 @@ const COUNTRY_DATA = {
         path.style.pointerEvents = 'auto';
         path.addEventListener('mouseenter', () => {
           if (!path.classList.contains('filled')) {
-            path.style.fill = 'rgba(99, 102, 241, 0.35)';
-            path.style.stroke = '#4F46E5';
+            path.style.fill = 'rgba(56, 189, 248, 0.3)';
+            path.style.stroke = 'rgba(56, 189, 248, 0.7)';
             path.style.strokeWidth = '2.5';
           }
         });
         path.addEventListener('mouseleave', () => {
           if (!path.classList.contains('filled')) {
-            path.style.fill = 'rgba(99, 102, 241, 0.15)';
-            path.style.stroke = '#6366F1';
+            path.style.fill = 'rgba(56, 189, 248, 0.12)';
+            path.style.stroke = 'rgba(56, 189, 248, 0.4)';
             path.style.strokeWidth = '1.5';
           }
         });
       });
     }
 
-    function renderTray() {
-      const container = document.getElementById('flag-chips');
-      container.innerHTML = '';
-      gameState.countries.forEach(country => {
-        const chip = document.createElement('div');
-        chip.className = 'flag-chip';
-        chip.draggable = 'true';
-        chip.dataset.id = country.id;
-        chip.innerHTML = `<span class="chip-emoji">${country.flag}</span><span>${country.name}</span>`;
+    function bindDragEvents(element, country) {
+      element.draggable = true;
+      element.dataset.id = country.id;
 
-        // Desktop drag events (HTML5 Drag & Drop)
-        chip.addEventListener('dragstart', (e) => {
-          if (chip.classList.contains('placed')) { e.preventDefault(); return; }
-          e.dataTransfer.setData('text/plain', country.id);
-          e.dataTransfer.effectAllowed = 'move';
-          requestAnimationFrame(() => {
-            chip.style.opacity = '0.5';
-            chip.style.transform = 'scale(1.1)';
-          });
+      element.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', country.id);
+        e.dataTransfer.effectAllowed = 'move';
+        requestAnimationFrame(() => {
+          element.style.opacity = '0.5';
         });
-        chip.addEventListener('dragend', () => {
-          chip.style.opacity = '1';
-          chip.style.transform = '';
-        });
-
-        // Mobile touch events
-        chip.addEventListener('touchstart', (e) => {
-          if (chip.classList.contains('placed')) return;
-          e.preventDefault();
-          const touch = e.touches[0];
-          touchDragState.active = true;
-          touchDragState.countryId = country.id;
-          touchDragState.chip = chip;
-
-          // Create clone that follows finger
-          const clone = chip.cloneNode(true);
-          clone.className = 'flag-chip touch-clone';
-          clone.style.width = chip.offsetWidth + 'px';
-          clone.style.left = (touch.clientX - chip.offsetWidth / 2) + 'px';
-          clone.style.top = (touch.clientY - 30) + 'px';
-          document.body.appendChild(clone);
-          touchDragState.clone = clone;
-
-          // Hide original
-          chip.style.opacity = '0.35';
-        }, { passive: false });
-
-        container.appendChild(chip);
       });
+      element.addEventListener('dragend', () => {
+        element.style.opacity = '1';
+      });
+
+      element.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        touchDragState.active = true;
+        touchDragState.countryId = country.id;
+        touchDragState.chip = element;
+
+        const clone = document.createElement('div');
+        clone.className = 'touch-clone';
+        clone.textContent = country.flag + ' ' + country.name;
+        clone.style.left = (touch.clientX - 50) + 'px';
+        clone.style.top = (touch.clientY - 30) + 'px';
+        document.body.appendChild(clone);
+        touchDragState.clone = clone;
+
+        element.style.opacity = '0.35';
+      }, { passive: false });
+    }
+
+    function renderTaskPanel() {
+      const panel = document.getElementById('task-panel');
+      if (!panel) return;
+
+      const placed = gameState.countries.filter(c => c.placed).length;
+      const total = gameState.countries.length;
+      const activeCountry = gameState.countries.find(c => !c.placed);
+
+      let html = '';
+
+      if (activeCountry) {
+        html += `<div class="current-flag-card" data-id="${activeCountry.id}">
+          <div class="current-flag-emoji">${activeCountry.flag}</div>
+          <div class="current-flag-name">${activeCountry.name}</div>
+          <div class="drag-hint">拖拽到地图上的正确位置</div>
+        </div>`;
+      }
+
+      html += '<div class="flag-queue">';
+      gameState.countries.forEach((country) => {
+        const isActive = !country.placed && country === activeCountry;
+        const isCompleted = country.placed;
+        const cls = isCompleted ? 'completed' : (isActive ? 'active' : '');
+        html += `<div class="flag-queue-item ${cls}" data-id="${country.id}">
+          <span class="queue-emoji">${country.flag}</span>
+          <span class="queue-name">${country.name}</span>
+        </div>`;
+      });
+      html += '</div>';
+
+      html += `<div class="progress-bar-container">
+        <div class="progress-label"><span>进度</span><span>${placed} / ${total}</span></div>
+        <div class="progress-bar">
+          <div class="progress-bar-fill" style="width:${total > 0 ? (placed / total * 100) : 0}%"></div>
+        </div>
+      </div>`;
+
+      panel.innerHTML = html;
+
+      if (activeCountry) {
+        const cardEl = panel.querySelector('.current-flag-card');
+        if (cardEl) bindDragEvents(cardEl, activeCountry);
+        const activeEl = panel.querySelector('.flag-queue-item.active');
+        if (activeEl) bindDragEvents(activeEl, activeCountry);
+      }
 
       // Global touch move and end handlers (attached once)
       if (!window._touchHandlersAttached) {
@@ -3360,12 +3779,10 @@ const COUNTRY_DATA = {
           touchDragState.clone.style.left = (touch.clientX - touchDragState.clone.offsetWidth / 2) + 'px';
           touchDragState.clone.style.top = (touch.clientY - 30) + 'px';
 
-          // Highlight country under touch point
           touchDragState.clone.style.display = 'none';
           const el = document.elementFromPoint(touch.clientX, touch.clientY);
           touchDragState.clone.style.display = '';
 
-          // Remove previous highlight
           if (touchDragState.highlightedPath) {
             touchDragState.highlightedPath.classList.remove('drag-highlight');
             touchDragState.highlightedPath = null;
@@ -3384,30 +3801,27 @@ const COUNTRY_DATA = {
           if (!touchDragState.active) return;
           const touch = e.changedTouches[0];
 
-          // Remove clone
           if (touchDragState.clone) {
             touchDragState.clone.remove();
             touchDragState.clone = null;
           }
 
-          // Remove highlight
           if (touchDragState.highlightedPath) {
             touchDragState.highlightedPath.classList.remove('drag-highlight');
             touchDragState.highlightedPath = null;
           }
 
-          // Find target country from touch point
           const el = document.elementFromPoint(touch.clientX, touch.clientY);
           let targetId = null;
           if (el) {
             const path = el.closest('.country-path');
             if (path) targetId = path.dataset.id;
-            // Also check slot markers
             const slot = el.closest('.slot-marker');
             if (slot) targetId = slot.dataset.id;
+            const hitArea = el.closest('.drag-hit-area');
+            if (hitArea) targetId = hitArea.dataset.id;
           }
 
-          // Restore chip appearance
           if (touchDragState.chip) {
             touchDragState.chip.style.opacity = '1';
           }
@@ -3429,41 +3843,54 @@ const COUNTRY_DATA = {
 
     function renderSlotMarkers() {
       const container = document.getElementById('slot-markers');
+      const hitAreasContainer = document.getElementById('drag-hit-areas');
       container.innerHTML = '';
+      if (hitAreasContainer) hitAreasContainer.innerHTML = '';
+
       gameState.countries.forEach(country => {
         const pos = getCountryScreenPosition(country.id);
         if (!pos) return;
+
         const marker = document.createElement('div');
         marker.className = 'slot-marker';
         marker.dataset.id = country.id;
         marker.textContent = '?';
         marker.style.left = pos[0] + 'px';
         marker.style.top = pos[1] + 'px';
-
-        // Desktop drop events
-        marker.addEventListener('dragover', (e) => {
-          e.preventDefault();
-          e.dataTransfer.dropEffect = 'move';
-          marker.style.borderColor = '#7C3AED';
-          marker.style.transform = 'translate(-50%, -50%) scale(1.15)';
-        });
-        marker.addEventListener('dragleave', () => {
-          marker.style.borderColor = '';
-          marker.style.transform = '';
-        });
-        marker.addEventListener('drop', (e) => {
-          e.preventDefault();
-          marker.style.borderColor = '';
-          marker.style.transform = '';
-          const draggedId = e.dataTransfer.getData('text/plain');
-          if (draggedId === country.id) {
-            placeFlag(draggedId, country.id);
-          } else {
-            wrongDrop(draggedId, country.id);
-          }
-        });
-
         container.appendChild(marker);
+
+        // Invisible larger hit area for easier dropping
+        if (hitAreasContainer) {
+          const hitArea = document.createElement('div');
+          hitArea.className = 'drag-hit-area';
+          hitArea.dataset.id = country.id;
+          hitArea.style.left = pos[0] + 'px';
+          hitArea.style.top = pos[1] + 'px';
+
+          hitArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            marker.style.borderColor = 'var(--gold-light)';
+            marker.style.transform = 'translate(-50%, -50%) scale(1.15)';
+          });
+          hitArea.addEventListener('dragleave', () => {
+            marker.style.borderColor = '';
+            marker.style.transform = '';
+          });
+          hitArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            marker.style.borderColor = '';
+            marker.style.transform = '';
+            const draggedId = e.dataTransfer.getData('text/plain');
+            if (draggedId === country.id) {
+              placeFlag(draggedId, country.id);
+            } else {
+              wrongDrop(draggedId, country.id);
+            }
+          });
+
+          hitAreasContainer.appendChild(hitArea);
+        }
       });
 
       // Also add dragover/drop on country paths for desktop
@@ -3502,13 +3929,13 @@ const COUNTRY_DATA = {
     function placeFlag(countryId, targetId) {
       const svg = document.getElementById('map-svg');
       const targetPath = svg.querySelector(`path[data-id="${targetId}"]`);
-      const chip = document.querySelector(`.flag-chip[data-id="${countryId}"]`);
       const marker = document.querySelector(`.slot-marker[data-id="${targetId}"]`);
       const country = gameState.countries.find(c => c.id === countryId);
-      if (!country || !targetPath || !chip) return;
+      if (!country || !targetPath) return;
 
       // Increment score
       gameState.score++;
+      country.placed = true;
       playSound('correct');
 
       // Update score display with pop animation
@@ -3542,17 +3969,15 @@ const COUNTRY_DATA = {
         text.setAttribute('y', parseFloat(pos[1]) + 20);
         text.setAttribute('text-anchor', 'middle');
         text.setAttribute('font-size', '10');
-        text.setAttribute('fill', '#1E1B4B');
+        text.setAttribute('fill', '#E2E8F0');
         text.setAttribute('font-family', "'Baloo 2', cursive");
         text.setAttribute('pointer-events', 'none');
         text.textContent = country.name;
         svg.appendChild(text);
       }
 
-      // Mark tray chip as placed
-      chip.classList.add('placed');
-      chip.draggable = false;
-      chip.style.cursor = 'default';
+      // Update task panel
+      renderTaskPanel();
 
       // Check if all flags placed
       if (gameState.score === gameState.countries.length) {
@@ -3570,7 +3995,6 @@ const COUNTRY_DATA = {
       const svg = document.getElementById('map-svg');
       const targetPath = svg.querySelector(`path[data-id="${wrongTargetId}"]`);
       const marker = document.querySelector(`.slot-marker[data-id="${wrongTargetId}"]`);
-      const chip = document.querySelector(`.flag-chip[data-id="${countryId}"]`);
 
       // Add to errors
       gameState.errors.push({ dragged: countryId, target: wrongTargetId });
@@ -3590,12 +4014,6 @@ const COUNTRY_DATA = {
           marker.classList.remove('wrong');
           marker.textContent = '?';
         }, 500);
-      }
-
-      // Restore chip appearance
-      if (chip) {
-        chip.style.opacity = '1';
-        chip.style.transform = '';
       }
     }
 
@@ -3643,7 +4061,7 @@ const COUNTRY_DATA = {
       // Score ring (conic-gradient)
       const pct = total > 0 ? Math.round((score / total) * 100) : 0;
       const ring = document.getElementById('result-score-ring');
-      ring.style.background = `conic-gradient(#4F46E5 0% ${pct}%, #E0E7FF ${pct}% 100%)`;
+      ring.style.background = `conic-gradient(#F59E0B 0% ${pct}%, rgba(255,255,255,0.1) ${pct}% 100%)`;
       document.getElementById('result-score-text').textContent = `${score}/${total}`;
 
       // Stats
@@ -3690,6 +4108,15 @@ const COUNTRY_DATA = {
       showPage('home');
     }
 
+    let hintsVisible = true;
+
+    function toggleHints() {
+      hintsVisible = !hintsVisible;
+      const btn = document.getElementById('hint-toggle');
+      btn.classList.toggle('off', !hintsVisible);
+      document.getElementById('slot-markers').style.display = hintsVisible ? '' : 'none';
+    }
+
     // ===== Override startGame to initialize =====
     startGame = function(key) {
       gameState.continent = key;
@@ -3708,11 +4135,63 @@ const COUNTRY_DATA = {
       });
     };
 
+    // ===== Render placed flags (reusable for zoom/resize) =====
+    function renderPlacedFlags() {
+      const svg = document.getElementById('map-svg');
+      const flagMarkers = document.getElementById('flag-markers');
+      // Re-apply filled class on SVG paths and rebuild flag markers
+      flagMarkers.innerHTML = '';
+      gameState.countries.filter(c => c.placed).forEach(c => {
+        const path = svg.querySelector(`path[data-id="${c.id}"]`);
+        if (path) path.classList.add('filled');
+        const pos = getCountryScreenPosition(c.id);
+        if (pos) {
+          const fm = document.createElement('div');
+          fm.className = 'flag-marker';
+          fm.textContent = c.flag;
+          fm.style.left = pos[0] + 'px';
+          fm.style.top = pos[1] + 'px';
+          fm.style.animation = 'none';
+          flagMarkers.appendChild(fm);
+
+          // Re-add country name label in SVG
+          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          text.setAttribute('x', pos[0]);
+          text.setAttribute('y', parseFloat(pos[1]) + 20);
+          text.setAttribute('text-anchor', 'middle');
+          text.setAttribute('font-size', '10');
+          text.setAttribute('fill', '#E2E8F0');
+          text.setAttribute('font-family', "'Baloo 2', cursive");
+          text.setAttribute('pointer-events', 'none');
+          text.textContent = c.name;
+          svg.appendChild(text);
+        }
+      });
+    }
+
+    // ===== Zoom Functions =====
+    function zoomMap(delta) {
+      if (!leafletMap) return;
+      const newZoom = leafletMap.getZoom() + delta;
+      leafletMap.setZoom(newZoom);
+      const slider = document.getElementById('zoom-slider');
+      if (slider) slider.value = newZoom;
+    }
+
+    function setMapZoom(val) {
+      if (!leafletMap) return;
+      leafletMap.setZoom(parseFloat(val));
+    }
+
     // ===== Window Resize Handler =====
     window.addEventListener('resize', () => {
       if (leafletMap && gameState.continent) {
         leafletMap.invalidateSize();
-        setTimeout(() => renderSvgOverlay(COUNTRY_DATA[gameState.continent] || []), 100);
+        setTimeout(() => {
+          renderSvgOverlay(COUNTRY_DATA[gameState.continent] || []);
+          renderSlotMarkers();
+          renderPlacedFlags();
+        }, 100);
       }
     });
   </script>
