@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>世界插旗挑战</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1271,6 +1274,7 @@
       chip: null,
       highlightedPath: null
     };
+    let desktopDragClone = null;
 
     // ===== Start Game =====
     function startGame(key) {
@@ -3695,12 +3699,36 @@ const COUNTRY_DATA = {
       element.addEventListener('dragstart', (e) => {
         e.dataTransfer.setData('text/plain', country.id);
         e.dataTransfer.effectAllowed = 'move';
+
+        // 隐藏原生 ghost
+        const img = new Image();
+        img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+        e.dataTransfer.setDragImage(img, 0, 0);
+
+        // 创建自定义克隆元素（与触摸端一致）
+        const clone = document.createElement('div');
+        clone.className = 'touch-clone';
+        clone.textContent = country.flag + ' ' + country.name;
+        clone.id = 'desktop-drag-clone';
+        document.body.appendChild(clone);
+        desktopDragClone = clone;
+
         requestAnimationFrame(() => {
           element.style.opacity = '0.5';
         });
       });
+      element.addEventListener('drag', (e) => {
+        if (desktopDragClone && e.clientX !== 0 && e.clientY !== 0) {
+          desktopDragClone.style.left = (e.clientX - 30) + 'px';
+          desktopDragClone.style.top = (e.clientY - 30) + 'px';
+        }
+      });
       element.addEventListener('dragend', () => {
         element.style.opacity = '1';
+        if (desktopDragClone) {
+          desktopDragClone.remove();
+          desktopDragClone = null;
+        }
       });
 
       element.addEventListener('touchstart', (e) => {
@@ -3848,6 +3876,8 @@ const COUNTRY_DATA = {
       if (hitAreasContainer) hitAreasContainer.innerHTML = '';
 
       gameState.countries.forEach(country => {
+        console.log('[renderSlotMarkers]', country.id, 'placed:', country.placed);
+        if (country.placed) return;
         const pos = getCountryScreenPosition(country.id);
         if (!pos) return;
 
@@ -3936,6 +3966,8 @@ const COUNTRY_DATA = {
       // Increment score
       gameState.score++;
       country.placed = true;
+      console.log('[placeFlag]', countryId, 'placed set to true, countries:', gameState.countries.map(c => c.id + ':' + c.placed));
+      renderSlotMarkers();
       playSound('correct');
 
       // Update score display with pop animation
@@ -3947,11 +3979,6 @@ const COUNTRY_DATA = {
 
       // Mark SVG path as filled (green)
       targetPath.classList.add('filled');
-
-      // Remove corresponding slot marker
-      if (marker) {
-        marker.style.display = 'none';
-      }
 
       // Create flag marker at country position (animated drop)
       const pos = getCountryScreenPosition(targetId);
