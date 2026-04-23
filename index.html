@@ -1037,9 +1037,9 @@
       }
 
       .slot-marker {
-        width: 28px;
-        height: 28px;
-        font-size: 12px;
+        width: 40px;
+        height: 40px;
+        font-size: 14px;
       }
 
       .result-content {
@@ -1135,6 +1135,7 @@
         <div class="header-info">
           <div class="score-display">🏆 <span id="game-score">0 / 0</span></div>
           <div class="timer-display">⏱ <span id="game-timer">00:00</span></div>
+          <button class="hint-toggle" id="pause-btn" onclick="togglePause()" title="暂停/继续">⏸</button>
           <button class="hint-toggle" id="hint-toggle" onclick="toggleHints()" title="显示/隐藏提示">💡</button>
         </div>
       </div>
@@ -1263,7 +1264,10 @@
       errors: [],
       startTime: null,
       timerInterval: null,
-      isComplete: false
+      isComplete: false,
+      paused: false,
+      pausedTime: 0,
+      pauseStart: null
     };
 
     // Touch drag state
@@ -3556,6 +3560,9 @@ const COUNTRY_DATA = {
       gameState.score = 0;
       gameState.errors = [];
       gameState.isComplete = false;
+      gameState.paused = false;
+      gameState.pausedTime = 0;
+      gameState.pauseStart = null;
       gameState.startTime = Date.now();
       startTimer();
       renderMap();
@@ -3687,6 +3694,37 @@ const COUNTRY_DATA = {
             path.style.fill = 'rgba(56, 189, 248, 0.12)';
             path.style.stroke = 'rgba(56, 189, 248, 0.4)';
             path.style.strokeWidth = '1.5';
+          }
+        });
+      });
+
+      // Bind drag events on SVG paths (only once)
+      bindSvgPathDragEvents();
+    }
+
+    function bindSvgPathDragEvents() {
+      const svg = document.getElementById('map-svg');
+      if (svg._pathDragAttached) return;
+      svg._pathDragAttached = true;
+      svg.querySelectorAll('.country-path').forEach(path => {
+        path.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          if (!path.classList.contains('filled')) {
+            path.classList.add('drag-highlight');
+          }
+        });
+        path.addEventListener('dragleave', () => {
+          path.classList.remove('drag-highlight');
+        });
+        path.addEventListener('drop', (e) => {
+          e.preventDefault();
+          path.classList.remove('drag-highlight');
+          const draggedId = e.dataTransfer.getData('text/plain');
+          const targetId = path.dataset.id;
+          if (draggedId === targetId) {
+            placeFlag(draggedId, targetId);
+          } else {
+            wrongDrop(draggedId, targetId);
           }
         });
       });
@@ -3876,7 +3914,6 @@ const COUNTRY_DATA = {
       if (hitAreasContainer) hitAreasContainer.innerHTML = '';
 
       gameState.countries.forEach(country => {
-        console.log('[renderSlotMarkers]', country.id, 'placed:', country.placed);
         if (country.placed) return;
         const pos = getCountryScreenPosition(country.id);
         if (!pos) return;
@@ -3923,30 +3960,6 @@ const COUNTRY_DATA = {
         }
       });
 
-      // Also add dragover/drop on country paths for desktop
-      const svg = document.getElementById('map-svg');
-      svg.querySelectorAll('.country-path').forEach(path => {
-        path.addEventListener('dragover', (e) => {
-          e.preventDefault();
-          if (!path.classList.contains('filled')) {
-            path.classList.add('drag-highlight');
-          }
-        });
-        path.addEventListener('dragleave', () => {
-          path.classList.remove('drag-highlight');
-        });
-        path.addEventListener('drop', (e) => {
-          e.preventDefault();
-          path.classList.remove('drag-highlight');
-          const draggedId = e.dataTransfer.getData('text/plain');
-          const targetId = path.dataset.id;
-          if (draggedId === targetId) {
-            placeFlag(draggedId, targetId);
-          } else {
-            wrongDrop(draggedId, targetId);
-          }
-        });
-      });
     }
 
     function getCountryScreenPosition(countryId) {
@@ -3966,7 +3979,6 @@ const COUNTRY_DATA = {
       // Increment score
       gameState.score++;
       country.placed = true;
-      console.log('[placeFlag]', countryId, 'placed set to true, countries:', gameState.countries.map(c => c.id + ':' + c.placed));
       renderSlotMarkers();
       playSound('correct');
 
@@ -4067,7 +4079,22 @@ const COUNTRY_DATA = {
 
     function getElapsedTime() {
       if (!gameState.startTime) return 0;
-      return Math.floor((Date.now() - gameState.startTime) / 1000);
+      return Math.floor((Date.now() - gameState.startTime - gameState.pausedTime) / 1000);
+    }
+
+    function togglePause() {
+      if (gameState.isComplete) return;
+      gameState.paused = !gameState.paused;
+      if (gameState.paused) {
+        gameState.pauseStart = Date.now();
+        stopTimer();
+      } else {
+        gameState.pausedTime += Date.now() - gameState.pauseStart;
+        startTimer();
+      }
+      const btn = document.getElementById('pause-btn');
+      btn.textContent = gameState.paused ? '▶' : '⏸';
+      document.getElementById('task-panel').style.opacity = gameState.paused ? '0.5' : '1';
     }
 
     // ===== Result Page =====
