@@ -140,11 +140,14 @@
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 760px;
-      height: 760px;
+      width: 780px;
+      height: 780px;
       transform: translate(-50%, -50%);
-      background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 65%);
+      background:
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.30), rgba(255, 255, 255, 0) 62%),
+        url('assets/globe.webp') center/cover no-repeat;
       border-radius: 50%;
+      opacity: 0.45;
       pointer-events: none;
     }
 
@@ -272,6 +275,13 @@
       transition: transform 0.4s ease;
     }
 
+    /* candy tint washed over the photo so cards still feel part of the palette */
+    .continent-card .card-tint {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
     .continent-card:hover .card-bg {
       transform: scale(1.08);
     }
@@ -279,7 +289,7 @@
     .continent-card .card-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg, transparent 45%, rgba(59, 44, 53, 0.55) 100%);
+      background: linear-gradient(180deg, transparent 40%, rgba(59, 44, 53, 0.72) 100%);
     }
 
     .continent-card .card-info {
@@ -1249,7 +1259,7 @@
         <div id="flag-markers" style="position:absolute;inset:0;z-index:3;pointer-events:none"></div>
         <div id="slot-markers" style="position:absolute;inset:0;z-index:4;pointer-events:none"></div>
         <div id="drag-hit-areas" style="position:absolute;inset:0;z-index:5;pointer-events:none"></div>
-        <a class="map-attribution" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap · CARTO</a>
+        <a class="map-attribution" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a>
         <div class="pause-overlay" id="pause-overlay" onclick="togglePause()">⏸ 已暂停<br><span>点击此处继续</span></div>
       </div>
       <div class="zoom-controls">
@@ -1385,12 +1395,12 @@
     // ===== Continent Data =====
     // country counts are derived from COUNTRY_DATA at render time
     const CONTINENTS = {
-      asia:         { name: "亚洲",   emoji: "🌏", color: "#FEE2E2", textColor: "#991B1B", accent: "#F87171" },
-      europe:       { name: "欧洲",   emoji: "🌍", color: "#DBEAFE", textColor: "#1E3A8A", accent: "#60A5FA" },
-      africa:       { name: "非洲",   emoji: "🌍", color: "#FEF3C7", textColor: "#92400E", accent: "#FBBF24" },
-      southAmerica: { name: "南美洲", emoji: "🌎", color: "#D1FAE5", textColor: "#065F46", accent: "#34D399" },
-      northAmerica: { name: "北美洲", emoji: "🌎", color: "#EDE9FE", textColor: "#5B21B6", accent: "#A78BFA" },
-      oceania:      { name: "大洋洲", emoji: "🌏", color: "#CFFAFE", textColor: "#155E75", accent: "#22D3EE" }
+      asia:         { name: "亚洲",   emoji: "🌏", color: "#FEE2E2", textColor: "#991B1B", accent: "#F87171", image: "assets/asia.webp" },
+      europe:       { name: "欧洲",   emoji: "🌍", color: "#DBEAFE", textColor: "#1E3A8A", accent: "#60A5FA", image: "assets/europe.webp" },
+      africa:       { name: "非洲",   emoji: "🌍", color: "#FEF3C7", textColor: "#92400E", accent: "#FBBF24", image: "assets/africa.webp" },
+      southAmerica: { name: "南美洲", emoji: "🌎", color: "#D1FAE5", textColor: "#065F46", accent: "#34D399", image: "assets/south-america.webp" },
+      northAmerica: { name: "北美洲", emoji: "🌎", color: "#EDE9FE", textColor: "#5B21B6", accent: "#A78BFA", image: "assets/north-america.webp" },
+      oceania:      { name: "大洋洲", emoji: "🌏", color: "#CFFAFE", textColor: "#155E75", accent: "#22D3EE", image: "assets/oceania.webp" }
     };
 
     // ===== Game State =====
@@ -1437,7 +1447,8 @@
         const best = getBest(key);
         const bestBadge = best ? `<div class="card-best">🏆 最佳 ${best.score}/${best.total} · ${formatTimeSec(best.timeSec)}</div>` : '';
         card.innerHTML = `
-          <div class="card-bg" style="background:linear-gradient(160deg, ${continent.color}, ${continent.accent}33)"></div>
+          <div class="card-bg" style="background-image:url('${continent.image}')"></div>
+          <div class="card-tint" style="background:linear-gradient(180deg, ${continent.accent}26 0%, transparent 45%)"></div>
           <div class="card-overlay"></div>
           <div class="card-info">
             <div class="card-name"><span class="card-emoji">${continent.emoji}</span>${continent.name}</div>
@@ -1514,9 +1525,9 @@
           boxZoom: false,
           zoomSnap: 0.5
         });
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 19,
-          attribution: '© OpenStreetMap contributors © CARTO'
+          attribution: '© OpenStreetMap contributors'
         }).addTo(leafletMap);
       }
 
