@@ -1526,7 +1526,11 @@
           keyboard: false,
           boxZoom: false,
           zoomSnap: 0.5,
-          worldCopyJump: true
+          zoomAnimation: false,   // with no tiles, animated zoom would leave the SVG static then snap
+          minZoom: 2,
+          maxZoom: 8,
+          maxBounds: [[-58, -185], [80, 185]],  // keep the drawn world in reach
+          maxBoundsViscosity: 1.0
         });
       }
 
@@ -1556,41 +1560,46 @@
       // Sync zoom slider
       const slider = document.getElementById('zoom-slider');
       if (slider) {
-        slider.min = 1;
+        slider.min = 2;
         slider.max = 8;
         slider.step = 0.5;
         slider.value = leafletMap.getZoom();
       }
 
-      // Listen for zoom changes to sync SVG overlay and markers
+      // Keep the SVG overlay and markers in sync with pan/zoom
       if (!leafletMap._zoomHandlerAttached) {
-        // Pan feedback: shift the overlays along with the map while dragging,
-        // moveend below reprojects them precisely
+        // Pan feedback: shift the overlays along with the map while dragging.
+        // containerPointToLayerPoint([0,0]) equals -mapPanePos, so the
+        // overlays (drawn in container coords) must move by its inverse.
         leafletMap.on('move', () => {
           const origin = leafletMap.containerPointToLayerPoint([0, 0]);
-          const t = `translate(${origin.x}px, ${origin.y}px)`;
+          const t = `translate(${-origin.x}px, ${-origin.y}px)`;
           ['map-svg', 'flag-markers', 'slot-markers', 'drag-hit-areas'].forEach(id => {
             document.getElementById(id).style.transform = t;
           });
         });
-        leafletMap.on('zoomend', () => {
+        // No tiles and no zoom animation: reproject immediately on every zoom
+        // step so wheel/button/slider zoom feels continuous instead of snapping
+        leafletMap.on('zoom', () => {
+          resetOverlayTransform();
+          renderSvgOverlay(COUNTRY_DATA[gameState.continent] || []);
+          renderSlotMarkers();
+          renderPlacedFlags();
           const slider = document.getElementById('zoom-slider');
           if (slider) slider.value = leafletMap.getZoom();
-          resetOverlayTransform();
-          renderSvgOverlay(COUNTRY_DATA[gameState.continent] || []);
-          renderSlotMarkers();
-          renderPlacedFlags();
         });
-        leafletMap.on('moveend', () => {
+        leafletMap.on('zoomend moveend', () => {
           resetOverlayTransform();
           renderSvgOverlay(COUNTRY_DATA[gameState.continent] || []);
           renderSlotMarkers();
           renderPlacedFlags();
+          const slider = document.getElementById('zoom-slider');
+          if (slider) slider.value = leafletMap.getZoom();
         });
         leafletMap._zoomHandlerAttached = true;
       }
 
-      // Wait for map to load tiles, then render SVG overlay
+      // Render SVG overlay after the layout has settled
       setTimeout(() => {
         renderSvgOverlay(countries);
         renderSlotMarkers(); // 必须在 SVG 渲染之后，才能绑定 country-path 事件
