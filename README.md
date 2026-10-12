@@ -15,9 +15,9 @@
 ## 技术说明
 
 - 纯静态单页应用,无构建步骤:`index.html` + `data.js`(国家 GeoJSON 数据)+ `vendor/`(自托管 Leaflet 1.9.4)
-- [Leaflet](https://leafletjs.com/) 提供 CARTO Voyager 彩色底图与视口换算,国家轮廓用 SVG overlay 绘制
+- [Leaflet](https://leafletjs.com/) 只负责视口/坐标换算与手势,**不加载任何在线瓦片**——免费瓦片服务(CARTO、OSM)都已加上平铺水印,因此世界地图完全由 `data.js` 自绘:当前大洲为白底蓝描边的可交互轮廓,其余大洲渲染为浅灰剪影背景,海洋为糖果色渐变
 - 桌面端走 HTML5 Drag & Drop,移动端走 touch 拖拽克隆
-- 无任何境外静态资源依赖(底图瓦片为运行时请求,© OpenStreetMap contributors © CARTO)
+- 运行时零外部请求,离线可玩
 
 ## 本地运行
 

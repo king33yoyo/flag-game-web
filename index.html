@@ -528,20 +528,21 @@
       position: relative;
       overflow: hidden;
       touch-action: none;
+      /* candy ocean: no tile layer, fully self-drawn map */
+      background:
+        radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.35) 2.5px, transparent 3px),
+        radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.22) 2px, transparent 2.5px),
+        linear-gradient(180deg, #D8EFFF 0%, #BFE3F9 100%);
+      background-size: 64px 64px, 64px 64px, 100% 100%;
     }
 
-    .map-attribution {
-      position: absolute;
-      left: 8px;
-      bottom: 8px;
-      z-index: 8;
-      font-size: 0.68rem;
-      color: var(--ink);
-      background: rgba(255, 255, 255, 0.82);
-      border-radius: 8px;
-      padding: 2px 8px;
-      text-decoration: none;
-      border: 1.5px solid rgba(59, 44, 53, 0.25);
+    /* inert silhouettes of the non-active continents */
+    .country-bg {
+      fill: rgba(255, 255, 255, 0.55);
+      stroke: rgba(59, 44, 53, 0.22);
+      stroke-width: 1;
+      stroke-linejoin: round;
+      pointer-events: none;
     }
 
     .slot-marker {
@@ -1259,7 +1260,6 @@
         <div id="flag-markers" style="position:absolute;inset:0;z-index:3;pointer-events:none"></div>
         <div id="slot-markers" style="position:absolute;inset:0;z-index:4;pointer-events:none"></div>
         <div id="drag-hit-areas" style="position:absolute;inset:0;z-index:5;pointer-events:none"></div>
-        <a class="map-attribution" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a>
         <div class="pause-overlay" id="pause-overlay" onclick="togglePause()">⏸ 已暂停<br><span>点击此处继续</span></div>
       </div>
       <div class="zoom-controls">
@@ -1512,7 +1512,9 @@
       const width = rect.width || 800;
       const height = rect.height || 500;
 
-      // Initialize or update Leaflet map
+      // Initialize or update Leaflet map.
+      // No tile layer: free tile providers (CARTO, OSM) now watermark their
+      // tiles, so the world is drawn entirely from our own GeoJSON instead.
       if (!leafletMap) {
         leafletMap = L.map('leaflet-map', {
           zoomControl: false,
@@ -1523,12 +1525,9 @@
           touchZoom: true,
           keyboard: false,
           boxZoom: false,
-          zoomSnap: 0.5
+          zoomSnap: 0.5,
+          worldCopyJump: true
         });
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 19,
-          attribution: '© OpenStreetMap contributors'
-        }).addTo(leafletMap);
       }
 
       // Fit to continent bounds
@@ -1598,6 +1597,23 @@
       }, 300);
     }
 
+    function countryPathD(country) {
+      const rings = country.geo.type === 'MultiPolygon'
+        ? country.geo.coordinates.map(p => p[0])
+        : [country.geo.coordinates[0]];
+      let d = '';
+      rings.forEach(ring => {
+        const points = ring.map(([lon, lat]) => {
+          const pt = leafletMap.latLngToContainerPoint([lat, lon]);
+          return `${pt.x.toFixed(1)},${pt.y.toFixed(1)}`;
+        });
+        if (points.length > 2) {
+          d += `M${points.join('L')}Z`;
+        }
+      });
+      return d;
+    }
+
     function renderSvgOverlay(countries) {
       const svg = document.getElementById('map-svg');
       const container = document.getElementById('map-container');
@@ -1609,21 +1625,21 @@
       svg.setAttribute('width', width);
       svg.setAttribute('height', height);
 
+      // Background: every other continent's countries, muted and inert
+      const currentIds = new Set(countries.map(c => c.id));
       let svgContent = '';
-      countries.forEach(country => {
-        const rings = country.geo.type === 'MultiPolygon'
-          ? country.geo.coordinates.map(p => p[0])
-          : [country.geo.coordinates[0]];
+      Object.values(COUNTRY_DATA).flat().forEach(country => {
+        if (currentIds.has(country.id)) return;
+        const d = countryPathD(country);
+        if (d) svgContent += `<path d="${d}" class="country-bg"/>`;
+      });
 
-        rings.forEach(ring => {
-          const points = ring.map(([lon, lat]) => {
-            const pt = leafletMap.latLngToContainerPoint([lat, lon]);
-            return `${pt.x.toFixed(1)},${pt.y.toFixed(1)}`;
-          });
-          if (points.length > 2) {
-            svgContent += `<path d="M${points.join('L')}Z" class="country-path" data-id="${country.id}" data-name="${country.name}" stroke-linejoin="round"/>`;
-          }
-        });
+      // Foreground: the playable continent
+      countries.forEach(country => {
+        const d = countryPathD(country);
+        if (d) {
+          svgContent += `<path d="${d}" class="country-path" data-id="${country.id}" data-name="${country.name}" stroke-linejoin="round"/>`;
+        }
       });
       svg.innerHTML = svgContent;
 
@@ -1633,16 +1649,16 @@
         path.style.pointerEvents = 'auto';
         path.addEventListener('mouseenter', () => {
           if (!path.classList.contains('filled')) {
-            path.style.fill = 'rgba(56, 189, 248, 0.3)';
-            path.style.stroke = 'rgba(56, 189, 248, 0.7)';
-            path.style.strokeWidth = '2.5';
+            path.style.fill = 'rgba(77, 171, 247, 0.38)';
+            path.style.stroke = '#1C7ED6';
+            path.style.strokeWidth = '2.6';
           }
         });
         path.addEventListener('mouseleave', () => {
           if (!path.classList.contains('filled')) {
-            path.style.fill = 'rgba(56, 189, 248, 0.12)';
-            path.style.stroke = 'rgba(56, 189, 248, 0.4)';
-            path.style.strokeWidth = '1.5';
+            path.style.fill = 'rgba(255, 255, 255, 0.45)';
+            path.style.stroke = '#1C7ED6';
+            path.style.strokeWidth = '1.8';
           }
         });
         path.addEventListener('dragover', (e) => {
