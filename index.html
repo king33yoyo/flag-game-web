@@ -342,6 +342,34 @@
       pointer-events: none;
     }
 
+    /* ===== Pause state: block every interaction ===== */
+    .pause-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 6;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(3px);
+      color: #F1F5F9;
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+    .pause-overlay span {
+      font-size: 0.95rem;
+      font-weight: 400;
+      color: #94A3B8;
+    }
+    #page-game.paused .pause-overlay { display: flex; cursor: pointer; }
+    #page-game.paused .task-panel,
+    #page-game.paused .zoom-controls,
+    #page-game.paused .back-btn,
+    #page-game.paused .hint-toggle { pointer-events: none; }
+    #page-game.paused .country-path { pointer-events: none !important; }
+
     /* ===== Game Page ===== */
     #page-game {
       flex-direction: row !important;
@@ -1145,6 +1173,7 @@
         <div id="flag-markers" style="position:absolute;inset:0;z-index:3;pointer-events:none"></div>
         <div id="slot-markers" style="position:absolute;inset:0;z-index:4;pointer-events:none"></div>
         <div id="drag-hit-areas" style="position:absolute;inset:0;z-index:5;pointer-events:none"></div>
+        <div class="pause-overlay" id="pause-overlay" onclick="togglePause()">⏸ 已暂停<br><span>点击此处继续</span></div>
       </div>
       <div class="zoom-controls">
         <button onclick="zoomMap(1)">+</button>
@@ -1247,13 +1276,14 @@
     }
 
     // ===== Continent Data =====
+    // country counts are derived from COUNTRY_DATA at render time
     const CONTINENTS = {
-      asia:         { name: "亚洲",   emoji: "🌏", color: "#FEE2E2", textColor: "#991B1B", count: 47, image: "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=600&h=400&fit=crop" },
-      europe:       { name: "欧洲",   emoji: "🌍", color: "#DBEAFE", textColor: "#1E3A8A", count: 44, image: "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=600&h=400&fit=crop" },
-      africa:       { name: "非洲",   emoji: "🌍", color: "#FEF3C7", textColor: "#92400E", count: 54, image: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=600&h=400&fit=crop" },
-      southAmerica: { name: "南美洲", emoji: "🌎", color: "#D1FAE5", textColor: "#065F46", count: 12, image: "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=600&h=400&fit=crop" },
-      northAmerica: { name: "北美洲", emoji: "🌎", color: "#EDE9FE", textColor: "#5B21B6", count: 23, image: "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=600&h=400&fit=crop" },
-      oceania:      { name: "大洋洲", emoji: "🌏", color: "#CFFAFE", textColor: "#155E75", count: 14, image: "https://images.unsplash.com/photo-1580237541049-2d715a09486e?w=600&h=400&fit=crop" }
+      asia:         { name: "亚洲",   emoji: "🌏", color: "#FEE2E2", textColor: "#991B1B", image: "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=600&h=400&fit=crop" },
+      europe:       { name: "欧洲",   emoji: "🌍", color: "#DBEAFE", textColor: "#1E3A8A", image: "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=600&h=400&fit=crop" },
+      africa:       { name: "非洲",   emoji: "🌍", color: "#FEF3C7", textColor: "#92400E", image: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=600&h=400&fit=crop" },
+      southAmerica: { name: "南美洲", emoji: "🌎", color: "#D1FAE5", textColor: "#065F46", image: "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=600&h=400&fit=crop" },
+      northAmerica: { name: "北美洲", emoji: "🌎", color: "#EDE9FE", textColor: "#5B21B6", image: "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=600&h=400&fit=crop" },
+      oceania:      { name: "大洋洲", emoji: "🌏", color: "#CFFAFE", textColor: "#155E75", image: "https://images.unsplash.com/photo-1580237541049-2d715a09486e?w=600&h=400&fit=crop" }
     };
 
     // ===== Game State =====
@@ -1296,12 +1326,13 @@
         card.className = 'continent-card';
         card.style.animationDelay = (0.05 + index * 0.06) + 's';
         card.onclick = () => startGame(key);
+        const countryCount = (COUNTRY_DATA[key] || []).length;
         card.innerHTML = `
           <div class="card-bg" style="background-image:url('${continent.image}')"></div>
           <div class="card-overlay"></div>
           <div class="card-info">
             <div class="card-name">${continent.name}</div>
-            <div class="card-count">${continent.count} 个国家</div>
+            <div class="card-count">${countryCount} 个国家 · 每局随机 10 题</div>
           </div>
         `;
         grid.appendChild(card);
@@ -1321,6 +1352,13 @@
           ? c.geo.coordinates.map(p => p[0])
           : [c.geo.coordinates[0]];
         rings.forEach(ring => ring.forEach(([lon, lat]) => fn(lon, lat)));
+      });
+    }
+
+    // Clear the transient pan transform once moveend has reprojected the overlays
+    function resetOverlayTransform() {
+      ['map-svg', 'flag-markers', 'slot-markers', 'drag-hit-areas'].forEach(id => {
+        document.getElementById(id).style.transform = '';
       });
     }
 
@@ -3563,6 +3601,8 @@ const COUNTRY_DATA = {
       gameState.paused = false;
       gameState.pausedTime = 0;
       gameState.pauseStart = null;
+      document.getElementById('page-game').classList.remove('paused');
+      document.getElementById('pause-btn').textContent = '⏸';
       gameState.startTime = Date.now();
       startTimer();
       renderMap();
@@ -3611,7 +3651,7 @@ const COUNTRY_DATA = {
       });
       const pad = gameState.continent === 'europe' ? 2 : 1;
       leafletMap.fitBounds([[minLat - pad, minLon - pad], [maxLat + pad, maxLon + pad]], { animate: false });
-      const zoomByContinent = { asia: 0.25, africa: 0.2, oceania: 0.05, 'south-america': 0.2, 'north-america': 0.2 };
+      const zoomByContinent = { asia: 0.25, africa: 0.2, oceania: 0.05, southAmerica: 0.2, northAmerica: 0.2 };
       const extraZoom = zoomByContinent[gameState.continent] || 0;
       if (extraZoom) {
         leafletMap.setZoom(leafletMap.getZoom() + extraZoom, { animate: false });
@@ -3628,14 +3668,25 @@ const COUNTRY_DATA = {
 
       // Listen for zoom changes to sync SVG overlay and markers
       if (!leafletMap._zoomHandlerAttached) {
+        // Pan feedback: shift the overlays along with the map while dragging,
+        // moveend below reprojects them precisely
+        leafletMap.on('move', () => {
+          const origin = leafletMap.containerPointToLayerPoint([0, 0]);
+          const t = `translate(${origin.x}px, ${origin.y}px)`;
+          ['map-svg', 'flag-markers', 'slot-markers', 'drag-hit-areas'].forEach(id => {
+            document.getElementById(id).style.transform = t;
+          });
+        });
         leafletMap.on('zoomend', () => {
           const slider = document.getElementById('zoom-slider');
           if (slider) slider.value = leafletMap.getZoom();
+          resetOverlayTransform();
           renderSvgOverlay(COUNTRY_DATA[gameState.continent] || []);
           renderSlotMarkers();
           renderPlacedFlags();
         });
         leafletMap.on('moveend', () => {
+          resetOverlayTransform();
           renderSvgOverlay(COUNTRY_DATA[gameState.continent] || []);
           renderSlotMarkers();
           renderPlacedFlags();
@@ -3679,7 +3730,8 @@ const COUNTRY_DATA = {
       });
       svg.innerHTML = svgContent;
 
-      // Enable pointer events on country paths
+      // Enable pointer events and rebind interactions on every rebuild:
+      // svg.innerHTML replacement discards old nodes along with their listeners
       svg.querySelectorAll('.country-path').forEach(path => {
         path.style.pointerEvents = 'auto';
         path.addEventListener('mouseenter', () => {
@@ -3696,17 +3748,6 @@ const COUNTRY_DATA = {
             path.style.strokeWidth = '1.5';
           }
         });
-      });
-
-      // Bind drag events on SVG paths (only once)
-      bindSvgPathDragEvents();
-    }
-
-    function bindSvgPathDragEvents() {
-      const svg = document.getElementById('map-svg');
-      if (svg._pathDragAttached) return;
-      svg._pathDragAttached = true;
-      svg.querySelectorAll('.country-path').forEach(path => {
         path.addEventListener('dragover', (e) => {
           e.preventDefault();
           if (!path.classList.contains('filled')) {
@@ -3719,6 +3760,7 @@ const COUNTRY_DATA = {
         path.addEventListener('drop', (e) => {
           e.preventDefault();
           path.classList.remove('drag-highlight');
+          if (gameState.paused) return;
           const draggedId = e.dataTransfer.getData('text/plain');
           const targetId = path.dataset.id;
           if (draggedId === targetId) {
@@ -3735,6 +3777,7 @@ const COUNTRY_DATA = {
       element.dataset.id = country.id;
 
       element.addEventListener('dragstart', (e) => {
+        if (gameState.paused) { e.preventDefault(); return; }
         e.dataTransfer.setData('text/plain', country.id);
         e.dataTransfer.effectAllowed = 'move';
 
@@ -3770,6 +3813,7 @@ const COUNTRY_DATA = {
       });
 
       element.addEventListener('touchstart', (e) => {
+        if (gameState.paused) return;
         e.preventDefault();
         const touch = e.touches[0];
         touchDragState.active = true;
@@ -4095,6 +4139,9 @@ const COUNTRY_DATA = {
       const btn = document.getElementById('pause-btn');
       btn.textContent = gameState.paused ? '▶' : '⏸';
       document.getElementById('task-panel').style.opacity = gameState.paused ? '0.5' : '1';
+      // Block all interaction while paused, otherwise the frozen timer
+      // becomes an unfair thinking-time exploit
+      document.getElementById('page-game').classList.toggle('paused', gameState.paused);
     }
 
     // ===== Result Page =====
@@ -4123,20 +4170,25 @@ const COUNTRY_DATA = {
       document.getElementById('result-wrong').textContent = wrongCount;
       document.getElementById('result-time').textContent = `${mins}:${secs}`;
 
-      // Review list
+      // Review list: every country ends up placed before the game finishes,
+      // so the meaningful stat is how many attempts its slot took
       const reviewEl = document.getElementById('result-review');
       reviewEl.innerHTML = '';
-      const errorTargets = new Set(gameState.errors.map(e => e.target));
+      const attemptsByTarget = {};
+      gameState.errors.forEach(e => {
+        attemptsByTarget[e.target] = (attemptsByTarget[e.target] || 0) + 1;
+      });
 
       gameState.countries.forEach(country => {
-        const isCorrect = !errorTargets.has(country.id);
+        const attempts = (attemptsByTarget[country.id] || 0) + 1;
+        const isPerfect = attempts === 1;
         const item = document.createElement('div');
         item.className = 'review-item';
         item.innerHTML = `
-          <div class="review-icon ${isCorrect ? 'correct' : 'wrong'}">${isCorrect ? '&#10003;' : '&#10007;'}</div>
+          <div class="review-icon ${isPerfect ? 'correct' : 'wrong'}">${isPerfect ? '&#10003;' : '&#10007;'}</div>
           <span class="review-flag">${country.flag}</span>
           <span class="review-name">${country.name}</span>
-          <span class="review-detail">${isCorrect ? '正确' : '未答对'}</span>
+          <span class="review-detail">${isPerfect ? '一次放对' : `尝试 ${attempts} 次`}</span>
         `;
         reviewEl.appendChild(item);
       });
@@ -4242,6 +4294,7 @@ const COUNTRY_DATA = {
       if (leafletMap && gameState.continent) {
         leafletMap.invalidateSize();
         setTimeout(() => {
+          resetOverlayTransform();
           renderSvgOverlay(COUNTRY_DATA[gameState.continent] || []);
           renderSlotMarkers();
           renderPlacedFlags();
