@@ -2,7 +2,14 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="世界插旗挑战:把国旗拖到地图上的正确位置,六大洲 170 个国家任你挑战,测测你的地理水平!">
+  <meta name="theme-color" content="#FFF8EC">
+  <meta property="og:title" content="世界插旗挑战">
+  <meta property="og:description" content="把国旗拖到地图上的正确位置,六大洲 170 个国家任你挑战!">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://king33yoyo.github.io/flag-game-web/">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
@@ -296,6 +303,18 @@
     .continent-card .card-count {
       font-size: 0.9rem;
       color: rgba(255, 255, 255, 0.7);
+      font-family: 'SimHei', 'Microsoft YaHei', sans-serif;
+    }
+
+    .continent-card .card-best {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 3px 10px;
+      border-radius: 100px;
+      background: rgba(255, 255, 255, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      font-size: 0.78rem;
+      color: #FFFFFF;
       font-family: 'SimHei', 'Microsoft YaHei', sans-serif;
     }
 
@@ -797,7 +816,25 @@
     .result-header .result-subtitle {
       font-size: 0.9rem;
       color: var(--gold-primary);
+      margin-bottom: 10px;
+    }
+
+    .result-header .best-badge {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 100px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       margin-bottom: 16px;
+    }
+
+    .result-header .best-badge.new-record {
+      color: #FFFFFF;
+      background: linear-gradient(135deg, #F59E0B, #FBBF24);
+      border-color: rgba(255, 255, 255, 0.35);
+      font-weight: 700;
     }
 
     .score-ring {
@@ -1202,6 +1239,7 @@
           <div class="trophy">&#127942;</div>
           <h2 id="result-title">挑战完成！</h2>
           <div class="result-subtitle" id="result-subtitle"></div>
+          <div class="best-badge" id="result-best"></div>
           <div class="score-ring" id="result-score-ring">
             <div class="score-ring-inner" id="result-score-text">0/0</div>
           </div>
@@ -1287,6 +1325,34 @@
       } catch(e) {}
     }
 
+    // ===== Best Score Persistence =====
+    function getBest(continentKey) {
+      try {
+        const raw = localStorage.getItem('flagGameBest.' + continentKey);
+        return raw ? JSON.parse(raw) : null; // {score, total, errors, timeSec}
+      } catch (e) { return null; }
+    }
+
+    function formatTimeSec(sec) {
+      const mins = Math.floor(sec / 60).toString().padStart(2, '0');
+      const s = (sec % 60).toString().padStart(2, '0');
+      return `${mins}:${s}`;
+    }
+
+    // Higher score wins, then shorter time, then fewer errors
+    function saveBestIfBetter(continentKey, result) {
+      const best = getBest(continentKey);
+      const isBetter = !best
+        || result.score > best.score
+        || (result.score === best.score && result.timeSec < best.timeSec)
+        || (result.score === best.score && result.timeSec === best.timeSec && result.errors < best.errors);
+      if (isBetter) {
+        try { localStorage.setItem('flagGameBest.' + continentKey, JSON.stringify(result)); } catch (e) {}
+        return true;
+      }
+      return false;
+    }
+
     // ===== Continent Data =====
     // country counts are derived from COUNTRY_DATA at render time
     const CONTINENTS = {
@@ -1339,12 +1405,15 @@
         card.style.animationDelay = (0.05 + index * 0.06) + 's';
         card.onclick = () => startGame(key);
         const countryCount = (COUNTRY_DATA[key] || []).length;
+        const best = getBest(key);
+        const bestBadge = best ? `<div class="card-best">🏆 最佳 ${best.score}/${best.total} · ${formatTimeSec(best.timeSec)}</div>` : '';
         card.innerHTML = `
           <div class="card-bg" style="background:linear-gradient(160deg, ${continent.color}, ${continent.accent}33)"></div>
           <div class="card-overlay"></div>
           <div class="card-info">
             <div class="card-name"><span class="card-emoji">${continent.emoji}</span>${continent.name}</div>
             <div class="card-count">${countryCount} 个国家 · 每局随机 10 题</div>
+            ${bestBadge}
           </div>
         `;
         grid.appendChild(card);
@@ -1947,6 +2016,18 @@
       document.getElementById('result-title').textContent = score === total ? '完美通关！' : '挑战完成！';
       document.getElementById('result-subtitle').textContent = `${continent.emoji} ${continent.name} - 共 ${total} 个国家`;
 
+      // Best score badge
+      const isNewRecord = saveBestIfBetter(gameState.continent, { score, total, errors: wrongCount, timeSec: elapsed });
+      const bestEl = document.getElementById('result-best');
+      if (isNewRecord) {
+        bestEl.textContent = `🏆 新纪录!`;
+        bestEl.classList.add('new-record');
+      } else {
+        const best = getBest(gameState.continent);
+        bestEl.textContent = best ? `最佳: ${best.score}/${best.total} · ${formatTimeSec(best.timeSec)}` : '';
+        bestEl.classList.remove('new-record');
+      }
+
       // Score ring (conic-gradient)
       const pct = total > 0 ? Math.round((score / total) * 100) : 0;
       const ring = document.getElementById('result-score-ring');
@@ -1999,6 +2080,7 @@
 
     function goHome() {
       stopTimer();
+      renderContinentGrid(); // refresh best-score badges after a finished run
       showPage('home');
     }
 
