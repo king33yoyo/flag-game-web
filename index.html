@@ -990,14 +990,18 @@
     .result-card {
       max-width: 440px;
       width: 100%;
+      max-height: calc(100vh - 110px);
       border-radius: 28px;
       overflow: hidden;
       background: var(--panel);
       border: var(--border-pop);
       box-shadow: var(--shadow-pop-lg);
+      display: flex;
+      flex-direction: column;
     }
 
     .result-header {
+      flex-shrink: 0;
       background: linear-gradient(180deg, #FFF3D6, #FFFFFF);
       padding: 28px 24px 20px;
       text-align: center;
@@ -1075,6 +1079,7 @@
       display: flex;
       gap: 10px;
       padding: 16px 20px 8px;
+      flex-shrink: 0;
     }
 
     .result-stat {
@@ -1105,33 +1110,46 @@
 
     .result-review {
       padding: 16px 20px;
-      max-height: 240px;
+      flex: 1;
+      min-height: 60px;
+      max-height: 220px;
       overflow-y: auto;
     }
 
-    /* newly unlocked achievements on the result card */
+    /* newly unlocked achievements on the result card: compact badge row */
     .new-achievements {
       margin: 4px 20px 8px;
-      padding: 12px 14px;
+      padding: 10px 12px;
       border: 2.5px dashed var(--orange);
       border-radius: 16px;
       background: #FFF8EC;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
     }
     .new-ach-title {
+      width: 100%;
       font-weight: 700;
       color: var(--ink);
-      margin-bottom: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 2px;
       text-align: center;
     }
     .new-ach-item {
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 8px;
-      font-size: 0.85rem;
+      gap: 4px;
+      padding: 4px 12px;
+      border-radius: 100px;
+      background: var(--panel);
+      border: 2px solid var(--ink);
+      font-size: 0.8rem;
       color: var(--ink);
-      padding: 4px 0;
+      cursor: default;
     }
-    .new-ach-item span { color: var(--ink-soft); font-size: 0.78rem; }
+    .new-ach-item span { display: none; }
 
     .result-review::-webkit-scrollbar {
       width: 6px;
@@ -1197,6 +1215,7 @@
       display: flex;
       gap: 12px;
       padding: 0 20px 20px;
+      flex-shrink: 0;
     }
 
     .result-actions button {
@@ -1392,8 +1411,8 @@
       </svg>
       世界插旗挑战
     </div>
-    <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" title="日间/夜间模式">🌙</button>
     <div class="nav-spacer"></div>
+    <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" title="日间/夜间模式">🌙</button>
   </nav>
 
   <!-- Page: Home -->
