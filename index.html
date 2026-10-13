@@ -2210,22 +2210,40 @@
       container.innerHTML = '';
       if (hitAreasContainer) hitAreasContainer.innerHTML = '';
 
-      // Nudge overlapping "?" pins apart so tiny neighbouring countries stay tappable
+      // Nudge overlapping "?" pins apart so tiny neighbouring countries stay
+      // tappable. Bigger countries claim their centroid first, smaller ones
+      // spiral outward to the nearest free spot (max ~72px away).
       const taken = [];
+      const OFFSETS = [
+        [0, 0],
+        [0, 36], [30, 20], [-30, 20], [30, -20], [-30, -20], [0, -36],
+        [0, 72], [56, 36], [-56, 36], [56, -36], [-56, -36], [0, -72], [60, 0], [-60, 0]
+      ];
+      const approxArea = (c) => {
+        const rings = c.geo.type === 'MultiPolygon' ? c.geo.coordinates.map(p => p[0]) : [c.geo.coordinates[0]];
+        let a = 0;
+        rings.forEach(r => {
+          let s = 0;
+          for (let i = 0; i < r.length - 1; i++) s += r[i][0] * r[i + 1][1] - r[i + 1][0] * r[i][1];
+          a += Math.abs(s / 2);
+        });
+        return a;
+      };
       const resolvePos = (raw) => {
         if (!raw) return null;
-        let [x, y] = raw;
-        for (let guard = 0; guard < 8; guard++) {
-          const clash = taken.some(([tx, ty]) => Math.hypot(tx - x, ty - y) < 38);
-          if (!clash) break;
-          y += 36;
+        for (const [dx, dy] of OFFSETS) {
+          const x = raw[0] + dx, y = raw[1] + dy;
+          if (!taken.some(([tx, ty]) => Math.hypot(tx - x, ty - y) < 38)) {
+            taken.push([x, y]);
+            return [x, y];
+          }
         }
-        taken.push([x, y]);
-        return [x, y];
+        taken.push(raw);
+        return raw; // hopelessly crowded (e.g. micro-states): accept the overlap
       };
 
-      gameState.countries.forEach(country => {
-        if (country.placed) return;
+      const unplaced = gameState.countries.filter(c => !c.placed);
+      unplaced.sort((a, b) => approxArea(b) - approxArea(a)).forEach(country => {
         const pos = resolvePos(getCountryScreenPosition(country.id));
         if (!pos) return;
 
