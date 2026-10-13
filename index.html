@@ -1307,6 +1307,7 @@
   </section>
 
   <script src="data.js"></script>
+  <script src="utils.js"></script>
   <script>
     // ===== Page Switching =====
     function showPage(id) {
@@ -1364,32 +1365,31 @@
       } catch(e) {}
     }
 
-    // ===== Best Score Persistence =====
+    // ===== Best Score Persistence (schema v2) =====
+    // v2 keys carry a version tag so future format changes can migrate cleanly;
+    // on first read we port any legacy v1 entry over and remove the old key.
+    const BEST_KEY = 'flagGameBest@2.';
+    const { formatTimeSec, isBetterResult, shuffleArray } = FlagUtils;
+
     function getBest(continentKey) {
       try {
-        const raw = localStorage.getItem('flagGameBest.' + continentKey);
+        let raw = localStorage.getItem(BEST_KEY + continentKey);
+        if (raw === null) {
+          const legacy = localStorage.getItem('flagGameBest.' + continentKey);
+          if (legacy !== null) {
+            localStorage.setItem(BEST_KEY + continentKey, legacy);
+            localStorage.removeItem('flagGameBest.' + continentKey);
+            raw = legacy;
+          }
+        }
         return raw ? JSON.parse(raw) : null; // {score, total, errors, timeSec}
       } catch (e) { return null; }
     }
 
-    function formatTimeSec(sec) {
-      const mins = Math.floor(sec / 60).toString().padStart(2, '0');
-      const s = (sec % 60).toString().padStart(2, '0');
-      return `${mins}:${s}`;
-    }
-
-    // Higher score wins, then shorter time, then fewer errors
     function saveBestIfBetter(continentKey, result) {
-      const best = getBest(continentKey);
-      const isBetter = !best
-        || result.score > best.score
-        || (result.score === best.score && result.timeSec < best.timeSec)
-        || (result.score === best.score && result.timeSec === best.timeSec && result.errors < best.errors);
-      if (isBetter) {
-        try { localStorage.setItem('flagGameBest.' + continentKey, JSON.stringify(result)); } catch (e) {}
-        return true;
-      }
-      return false;
+      if (!isBetterResult(result, getBest(continentKey))) return false;
+      try { localStorage.setItem(BEST_KEY + continentKey, JSON.stringify(result)); } catch (e) {}
+      return true;
     }
 
     // ===== Continent Data =====
@@ -1488,10 +1488,10 @@
 
     // ===== Game Rendering Functions =====
 
-    function initGame() {
+    function initGame(fullContinent) {
       const allCountries = COUNTRY_DATA[gameState.continent] || [];
-      const shuffled = [...allCountries].sort(() => Math.random() - 0.5);
-      gameState.countries = shuffled.slice(0, Math.min(10, shuffled.length)).map(c => ({...c, placed: false}));
+      const questionCount = fullContinent ? allCountries.length : Math.min(10, allCountries.length);
+      gameState.countries = shuffleArray(allCountries).slice(0, questionCount).map(c => ({...c, placed: false}));
       gameState.score = 0;
       gameState.errors = [];
       gameState.isComplete = false;
