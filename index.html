@@ -343,6 +343,79 @@
       color: var(--ink);
     }
 
+    /* full-continent challenge button pinned to the card corner */
+    .continent-card .card-full-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 2;
+      padding: 5px 12px;
+      border-radius: 100px;
+      border: 2.5px solid var(--ink);
+      background: #FFFFFF;
+      color: var(--ink);
+      font-size: 0.78rem;
+      font-weight: 700;
+      font-family: var(--font-candy);
+      cursor: pointer;
+      box-shadow: 0 3px 0 rgba(59, 44, 53, 0.25);
+      transition: transform 0.15s var(--bouncy), box-shadow 0.15s ease, background 0.15s;
+    }
+    .continent-card .card-full-btn:hover {
+      background: var(--yellow);
+      transform: translateY(-1px);
+    }
+    .continent-card .card-full-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 rgba(59, 44, 53, 0.25);
+    }
+
+    /* achievement badge strip on home */
+    .achievement-strip {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      max-width: 900px;
+      margin-bottom: 26px;
+    }
+    .ach-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      border-radius: 100px;
+      background: #FFFFFF;
+      border: 2px solid rgba(59, 44, 53, 0.25);
+      font-size: 0.8rem;
+      color: var(--ink-soft);
+      filter: grayscale(1);
+      opacity: 0.6;
+    }
+    .ach-chip i { font-style: normal; }
+    .ach-chip.on {
+      filter: none;
+      opacity: 1;
+      border-color: var(--ink);
+      color: var(--ink);
+      font-weight: 700;
+      box-shadow: 0 3px 0 rgba(59, 44, 53, 0.15);
+      background: #FFFDF5;
+    }
+    .ach-count {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 14px;
+      border-radius: 100px;
+      background: var(--yellow);
+      border: 2px solid var(--ink);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
     /* ===== Slot Pulse Animation ===== */
     @keyframes gold-pulse {
       0%, 100% { border-color: var(--orange); box-shadow: 0 0 0 4px rgba(255, 159, 67, 0.25); transform: translate(-50%, -50%) scale(1); }
@@ -980,6 +1053,30 @@
       overflow-y: auto;
     }
 
+    /* newly unlocked achievements on the result card */
+    .new-achievements {
+      margin: 4px 20px 8px;
+      padding: 12px 14px;
+      border: 2.5px dashed var(--orange);
+      border-radius: 16px;
+      background: #FFF8EC;
+    }
+    .new-ach-title {
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .new-ach-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--ink);
+      padding: 4px 0;
+    }
+    .new-ach-item span { color: var(--ink-soft); font-size: 0.78rem; }
+
     .result-review::-webkit-scrollbar {
       width: 6px;
     }
@@ -1065,6 +1162,11 @@
 
     .btn-home {
       background: #FFFFFF;
+      color: var(--ink);
+    }
+
+    .btn-share {
+      background: #D3F9D8;
       color: var(--ink);
     }
 
@@ -1250,6 +1352,7 @@
         <h1>把国旗插到<span class="highlight">正确的位置</span></h1>
         <p class="hero-subtitle">选择一个大洲，开始你的地理之旅</p>
       </div>
+      <div class="achievement-strip" id="achievement-strip"></div>
       <div class="continent-grid" id="continent-grid">
         <!-- Rendered by JS -->
       </div>
@@ -1316,8 +1419,10 @@
           </div>
         </div>
         <div class="result-review" id="result-review"></div>
+        <div class="new-achievements" id="result-new-achievements"></div>
         <div class="result-actions">
           <button class="btn-home" onclick="goHome()">换个大洲</button>
+          <button class="btn-share" id="btn-share" onclick="shareResultCard()">📸 分享成绩</button>
           <button class="btn-retry" onclick="retryGame()">再来一次</button>
         </div>
       </div>
@@ -1410,6 +1515,68 @@
       return true;
     }
 
+    // ===== Achievements & Lifetime Stats =====
+    const ACHIEVEMENTS = [
+      { id: 'first-win',   icon: '🥉', name: '初露锋芒',   desc: '完成第一局挑战' },
+      { id: 'perfect',     icon: '💯', name: '完美一局',   desc: '单局零失误通关' },
+      { id: 'speedster',   icon: '⚡', name: '闪电手',     desc: '60 秒内通关(10 题局)' },
+      { id: 'full-continent', icon: '🗺️', name: '整洲制霸', desc: '完成一次全部国家挑战' },
+      { id: 'world-tour',  icon: '🌍', name: '环球旅行家', desc: '六大洲各完成至少一局' },
+      { id: 'collector',   icon: '📮', name: '集旗百枚',   desc: '累计正确放置 100 面国旗' },
+      { id: 'marathon',    icon: '🏃', name: '百战不殆',   desc: '累计完成 25 局' }
+    ];
+    const ACH_KEY = 'flagGameAchievements@2';
+    const STATS_KEY = 'flagGameStats@2';
+
+    /** lifetime counters kept in memory during a run, persisted at game end */
+    let sessionStats = (() => {
+      try { return JSON.parse(localStorage.getItem(STATS_KEY)) || { totalCorrect: 0, gamesPlayed: 0 }; }
+      catch (e) { return { totalCorrect: 0, gamesPlayed: 0 }; }
+    })();
+
+    function getAchievements() {
+      try { return JSON.parse(localStorage.getItem(ACH_KEY)) || {}; } catch (e) { return {}; }
+    }
+
+    function persistStats() {
+      try { localStorage.setItem(STATS_KEY, JSON.stringify(sessionStats)); } catch (e) {}
+    }
+
+    /**
+     * Evaluate all achievement conditions after a finished run.
+     * Returns the newly unlocked list (may be empty).
+     */
+    function checkAchievements({ score, total, errors, timeSec, fullContinent }) {
+      const unlocked = getAchievements();
+      const now = Date.now();
+      const newly = [];
+      const grant = (id) => {
+        if (!unlocked[id]) { unlocked[id] = now; newly.push(ACHIEVEMENTS.find(a => a.id === id)); }
+      };
+      grant('first-win');
+      if (score === total && errors === 0) grant('perfect');
+      if (score === total && total <= 10 && timeSec <= 60) grant('speedster');
+      if (fullContinent && score === total) grant('full-continent');
+      if (Object.keys(CONTINENTS).every(c => getBest(c))) grant('world-tour');
+      if (sessionStats.totalCorrect >= 100) grant('collector');
+      if (sessionStats.gamesPlayed >= 25) grant('marathon');
+      if (newly.length) {
+        try { localStorage.setItem(ACH_KEY, JSON.stringify(unlocked)); } catch (e) {}
+      }
+      return newly;
+    }
+
+    /** badge strip shown on the home page under the hero */
+    function renderAchievementStrip() {
+      const strip = document.getElementById('achievement-strip');
+      if (!strip) return;
+      const unlocked = getAchievements();
+      const count = ACHIEVEMENTS.filter(a => unlocked[a.id]).length;
+      strip.innerHTML = ACHIEVEMENTS.map(a =>
+        `<span class="ach-chip ${unlocked[a.id] ? 'on' : ''}" title="${a.name}:${a.desc}">${a.icon}<i>${a.name}</i></span>`
+      ).join('') + `<span class="ach-count">🏅 ${count}/${ACHIEVEMENTS.length}</span>`;
+    }
+
     // ===== Continent Data =====
     // country counts are derived from COUNTRY_DATA at render time
     const CONTINENTS = {
@@ -1447,12 +1614,6 @@
     };
     let desktopDragClone = null;
 
-    // ===== Start Game =====
-    function startGame(key) {
-      gameState.continent = key;
-      showPage('game');
-    }
-
     // ===== Render Continent Grid =====
     function renderContinentGrid() {
       const grid = document.getElementById('continent-grid');
@@ -1464,21 +1625,27 @@
         card.style.animationDelay = (0.05 + index * 0.06) + 's';
         card.onclick = () => startGame(key);
         const countryCount = (COUNTRY_DATA[key] || []).length;
-        const best = getBest(key);
+        const best = getBest(key); // best is per-continent, both modes share it
         const bestBadge = best ? `<div class="card-best">🏆 最佳 ${best.score}/${best.total} · ${formatTimeSec(best.timeSec)}</div>` : '';
         card.innerHTML = `
           <div class="card-bg" style="background-image:url('${continent.image}')"></div>
           <div class="card-tint" style="background:linear-gradient(180deg, ${continent.accent}26 0%, transparent 45%)"></div>
           <div class="card-overlay"></div>
+          <button class="card-full-btn" title="挑战该大洲全部国家">🎯 全部 ${countryCount} 国</button>
           <div class="card-info">
             <div class="card-name"><span class="card-emoji">${continent.emoji}</span>${continent.name}</div>
             <div class="card-count">${countryCount} 个国家 · 每局随机 10 题</div>
             ${bestBadge}
           </div>
         `;
+        card.querySelector('.card-full-btn').addEventListener('click', (e) => {
+          e.stopPropagation();
+          startGame(key, true);
+        });
         grid.appendChild(card);
         index++;
       }
+      renderAchievementStrip();
     }
 
     // ===== Initialize =====
@@ -1514,6 +1681,7 @@
       gameState.countries = shuffleArray(allCountries).slice(0, questionCount).map(c => ({...c, placed: false}));
       gameState.score = 0;
       gameState.errors = [];
+      gameState.pickedCountry = null;
       gameState.isComplete = false;
       gameState.paused = false;
       gameState.pausedTime = 0;
@@ -1983,6 +2151,7 @@
 
       // Increment score
       gameState.score++;
+      sessionStats.totalCorrect++;
       country.placed = true;
       renderSlotMarkers();
       playSound('correct');
@@ -2144,6 +2313,19 @@
         bestEl.classList.remove('new-record');
       }
 
+      // Achievements: bump counters, evaluate, surface the newly unlocked
+      sessionStats.gamesPlayed++;
+      persistStats();
+      const newlyUnlocked = checkAchievements({ score, total, errors: wrongCount, timeSec: elapsed, fullContinent: gameState.fullContinent });
+      const achEl = document.getElementById('result-new-achievements');
+      if (newlyUnlocked.length) {
+        achEl.innerHTML = `<div class="new-ach-title">🎉 解锁新成就!</div>` +
+          newlyUnlocked.map(a => `<div class="new-ach-item">${a.icon} <b>${a.name}</b><span>${a.desc}</span></div>`).join('');
+        achEl.style.display = '';
+      } else {
+        achEl.style.display = 'none';
+      }
+
       // Score ring (conic-gradient)
       const pct = total > 0 ? Math.round((score / total) * 100) : 0;
       const ring = document.getElementById('result-score-ring');
@@ -2189,7 +2371,7 @@
           document.getElementById('game-timer').textContent = '00:00';
           // Clear flag markers from previous game
           document.getElementById('flag-markers').innerHTML = '';
-          initGame();
+          initGame(gameState.fullContinent);
         });
       });
     }
@@ -2209,23 +2391,25 @@
       document.getElementById('slot-markers').style.display = hintsVisible ? '' : 'none';
     }
 
-    // ===== Override startGame to initialize =====
-    startGame = function(key) {
+    // ===== Start Game (fullContinent: challenge every country in the continent) =====
+    function startGame(key, fullContinent) {
       gameState.continent = key;
+      gameState.fullContinent = !!fullContinent;
       showPage('game');
       // Wait a tick for layout to compute, then init
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           const continent = CONTINENTS[key];
-          document.getElementById('game-region-name').textContent = `${continent.emoji} ${continent.name}`;
+          const fullTag = gameState.fullContinent ? ` · 全部 ${COUNTRY_DATA[key].length} 国` : '';
+          document.getElementById('game-region-name').textContent = `${continent.emoji} ${continent.name}${fullTag}`;
           document.getElementById('game-score').textContent = `0 / ?`;
           document.getElementById('game-timer').textContent = '00:00';
           // Clear flag markers from previous game
           document.getElementById('flag-markers').innerHTML = '';
-          initGame();
+          initGame(gameState.fullContinent);
         });
       });
-    };
+    }
 
     // ===== Render placed flags (reusable for zoom/resize) =====
     function renderPlacedFlags() {
