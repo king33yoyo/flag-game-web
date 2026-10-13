@@ -662,6 +662,16 @@
       pointer-events: none;
     }
 
+    /* equator & tropics reference lines */
+    .graticule {
+      fill: none;
+      stroke: var(--orange);
+      stroke-width: 1.2;
+      stroke-dasharray: 8 6;
+      opacity: 0.45;
+      pointer-events: none;
+    }
+
     .slot-marker {
       position: absolute;
       width: 34px;
@@ -1899,6 +1909,21 @@
       return d;
     }
 
+    /** dashed parallels: equator + tropics + polar circles, for a globe feel */
+    const SPECIAL_LATITUDES = [66.5, 23.4, 0, -23.4, -66.5];
+
+    function graticuleD() {
+      const bounds = leafletMap.getBounds();
+      let d = '';
+      SPECIAL_LATITUDES.forEach(lat => {
+        if (lat < bounds.getSouth() || lat > bounds.getNorth()) return;
+        const west = leafletMap.latLngToContainerPoint([lat, bounds.getWest()]);
+        const east = leafletMap.latLngToContainerPoint([lat, bounds.getEast()]);
+        d += `M${west.x.toFixed(1)},${west.y.toFixed(1)}L${east.x.toFixed(1)},${east.y.toFixed(1)}`;
+      });
+      return d;
+    }
+
     function renderSvgOverlay(countries) {
       const svg = document.getElementById('map-svg');
       const container = document.getElementById('map-container');
@@ -1910,9 +1935,13 @@
       svg.setAttribute('width', width);
       svg.setAttribute('height', height);
 
+      // Reference lines first, at the very bottom
+      let svgContent = '';
+      const grat = graticuleD();
+      if (grat) svgContent += `<path d="${grat}" class="graticule"/>`;
+
       // Background: every other continent's countries, muted and inert
       const currentIds = new Set(countries.map(c => c.id));
-      let svgContent = '';
       Object.values(COUNTRY_DATA).flat().forEach(country => {
         if (currentIds.has(country.id)) return;
         const d = countryPathD(country);
@@ -2179,9 +2208,23 @@
       container.innerHTML = '';
       if (hitAreasContainer) hitAreasContainer.innerHTML = '';
 
+      // Nudge overlapping "?" pins apart so tiny neighbouring countries stay tappable
+      const taken = [];
+      const resolvePos = (raw) => {
+        if (!raw) return null;
+        let [x, y] = raw;
+        for (let guard = 0; guard < 8; guard++) {
+          const clash = taken.some(([tx, ty]) => Math.hypot(tx - x, ty - y) < 38);
+          if (!clash) break;
+          y += 36;
+        }
+        taken.push([x, y]);
+        return [x, y];
+      };
+
       gameState.countries.forEach(country => {
         if (country.placed) return;
-        const pos = getCountryScreenPosition(country.id);
+        const pos = resolvePos(getCountryScreenPosition(country.id));
         if (!pos) return;
 
         const marker = document.createElement('div');
