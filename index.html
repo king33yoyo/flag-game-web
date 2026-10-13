@@ -10,6 +10,8 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://king33yoyo.github.io/flag-game-web/">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
@@ -2706,6 +2708,10 @@
         }, 100);
       }
     });
+    // ===== PWA: register the service worker for offline play =====
+    if ('serviceWorker' in navigator && location.protocol === 'https:') {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
   </script>
 </body>
 </html>
