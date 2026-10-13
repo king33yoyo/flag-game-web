@@ -640,6 +640,14 @@
       margin-top: 4px;
     }
 
+    /* click-to-place selection state */
+    .current-flag-card.picked, .flag-queue-item.picked {
+      outline: 3px dashed var(--orange);
+      outline-offset: 2px;
+      background: linear-gradient(160deg, #FFE8CC, #FFD8A8);
+      border-color: var(--orange);
+    }
+
     .flag-queue {
       display: flex;
       flex-direction: column;
@@ -795,17 +803,27 @@
 
     .country-path {
       fill: rgba(255, 255, 255, 0.45);
-      stroke: var(--blue-deep);
+      stroke: #1C7ED6;
       stroke-width: 1.8;
       stroke-linejoin: round;
       cursor: pointer;
+      pointer-events: auto;
       transition: fill 0.2s ease, stroke 0.2s ease;
     }
 
     .country-path:hover {
       fill: rgba(77, 171, 247, 0.38);
-      stroke: var(--blue-deep);
+      stroke: #1C7ED6;
       stroke-width: 2.6;
+    }
+
+    /* wrong drop: pulse the correct country's shape so players learn the spot */
+    .country-path.correct-hint {
+      animation: hint-pulse 0.45s ease-in-out 3;
+    }
+    @keyframes hint-pulse {
+      0%, 100% { fill: rgba(81, 207, 102, 0.35); stroke: #37B24D; stroke-width: 2; }
+      50% { fill: rgba(81, 207, 102, 0.75); stroke: #2B8A3E; stroke-width: 4; }
     }
 
     .country-path.wrong-flash {
@@ -1406,9 +1424,11 @@
     // ===== Game State =====
     const gameState = {
       continent: null,
+      fullContinent: false,
       countries: [],
       score: 0,
       errors: [],
+      pickedCountry: null,
       startTime: null,
       timerInterval: null,
       isComplete: false,
@@ -1651,55 +1671,83 @@
         }
       });
       svg.innerHTML = svgContent;
+      ensureSvgDelegation();
+    }
 
-      // Enable pointer events and rebind interactions on every rebuild:
-      // svg.innerHTML replacement discards old nodes along with their listeners
-      svg.querySelectorAll('.country-path').forEach(path => {
-        path.style.pointerEvents = 'auto';
-        path.addEventListener('mouseenter', () => {
-          if (!path.classList.contains('filled')) {
-            path.style.fill = 'rgba(77, 171, 247, 0.38)';
-            path.style.stroke = '#1C7ED6';
-            path.style.strokeWidth = '2.6';
-          }
-        });
-        path.addEventListener('mouseleave', () => {
-          if (!path.classList.contains('filled')) {
-            path.style.fill = 'rgba(255, 255, 255, 0.45)';
-            path.style.stroke = '#1C7ED6';
-            path.style.strokeWidth = '1.8';
-          }
-        });
-        path.addEventListener('dragover', (e) => {
-          e.preventDefault();
-          if (!path.classList.contains('filled')) {
-            path.classList.add('drag-highlight');
-          }
-        });
-        path.addEventListener('dragleave', () => {
-          path.classList.remove('drag-highlight');
-        });
-        path.addEventListener('drop', (e) => {
-          e.preventDefault();
-          path.classList.remove('drag-highlight');
-          if (gameState.paused) return;
-          const draggedId = e.dataTransfer.getData('text/plain');
-          const targetId = path.dataset.id;
-          if (draggedId === targetId) {
-            placeFlag(draggedId, targetId);
-          } else {
-            wrongDrop(draggedId, targetId);
-          }
-        });
+    /**
+     * All country-path interactions live on the <svg> itself so rebuilding
+     * the paths never rebinds listeners. Hover styling is pure CSS.
+     */
+    function ensureSvgDelegation() {
+      const svg = document.getElementById('map-svg');
+      if (svg._delegated) return;
+      svg._delegated = true;
+      const pathFromEvent = (e) => (e.target && e.target.closest) ? e.target.closest('.country-path') : null;
+
+      svg.addEventListener('dragover', (e) => {
+        const path = pathFromEvent(e);
+        if (!path) return;
+        e.preventDefault();
+        if (!path.classList.contains('filled')) path.classList.add('drag-highlight');
       });
+      svg.addEventListener('dragleave', (e) => {
+        const path = pathFromEvent(e);
+        if (path) path.classList.remove('drag-highlight');
+      });
+      svg.addEventListener('drop', (e) => {
+        const path = pathFromEvent(e);
+        if (!path) return;
+        e.preventDefault();
+        path.classList.remove('drag-highlight');
+        attemptPlace(e.dataTransfer.getData('text/plain'), path.dataset.id);
+      });
+      // Click-to-place: tap a flag card first, then tap a country shape
+      svg.addEventListener('click', (e) => {
+        const path = pathFromEvent(e);
+        if (!path || gameState.paused) return;
+        attemptPlace(gameState.pickedCountry, path.dataset.id);
+      });
+    }
+
+    /** Shared entry for every placement attempt (drag, tap, hit-area drop) */
+    function attemptPlace(draggedId, targetId) {
+      if (!draggedId || !targetId || gameState.paused) return;
+      if (draggedId === targetId) {
+        placeFlag(draggedId, targetId);
+      } else {
+        wrongDrop(draggedId, targetId);
+      }
+      gameState.pickedCountry = null;
+      updatePickedUI();
+    }
+
+    /** Highlight the flag card chosen for click-to-place */
+    function updatePickedUI() {
+      const picked = gameState.pickedCountry;
+      document.querySelectorAll('.current-flag-card, .flag-queue-item').forEach(el => {
+        el.classList.toggle('picked', !!picked && el.dataset.id === picked);
+      });
+      const hint = document.querySelector('.current-flag-card .drag-hint');
+      if (hint) hint.textContent = picked ? '已选中 🎯 点击地图上的国家放置' : '拖拽到地图上的正确位置,或直接点击选取';
     }
 
     function bindDragEvents(element, country) {
       element.draggable = true;
       element.dataset.id = country.id;
 
+      // Click-to-place: tap toggles selection, drag still works as before
+      const pick = () => {
+        if (gameState.paused) return;
+        gameState.pickedCountry = gameState.pickedCountry === country.id ? null : country.id;
+        updatePickedUI();
+      };
+      element.addEventListener('click', pick);
+      element.addEventListener('touchstart', pick, { passive: true });
+
       element.addEventListener('dragstart', (e) => {
         if (gameState.paused) { e.preventDefault(); return; }
+        gameState.pickedCountry = null;
+        updatePickedUI();
         e.dataTransfer.setData('text/plain', country.id);
         e.dataTransfer.effectAllowed = 'move';
 
@@ -1768,7 +1816,7 @@
         html += `<div class="current-flag-card" data-id="${activeCountry.id}">
           <div class="current-flag-emoji">${activeCountry.flag}</div>
           <div class="current-flag-name">${activeCountry.name}</div>
-          <div class="drag-hint">拖拽到地图上的正确位置</div>
+          <div class="drag-hint">拖拽到地图,或点击选取后点地图放置</div>
         </div>`;
       }
 
@@ -1859,11 +1907,7 @@
           }
 
           if (targetId && touchDragState.countryId) {
-            if (touchDragState.countryId === targetId) {
-              placeFlag(touchDragState.countryId, targetId);
-            } else {
-              wrongDrop(touchDragState.countryId, targetId);
-            }
+            attemptPlace(touchDragState.countryId, targetId);
           }
 
           touchDragState.active = false;
@@ -1914,12 +1958,7 @@
             e.preventDefault();
             marker.style.borderColor = '';
             marker.style.transform = '';
-            const draggedId = e.dataTransfer.getData('text/plain');
-            if (draggedId === country.id) {
-              placeFlag(draggedId, country.id);
-            } else {
-              wrongDrop(draggedId, country.id);
-            }
+            attemptPlace(e.dataTransfer.getData('text/plain'), country.id);
           });
 
           hitAreasContainer.appendChild(hitArea);
@@ -2013,6 +2052,14 @@
       if (targetPath) {
         targetPath.classList.add('wrong-flash');
         setTimeout(() => targetPath.classList.remove('wrong-flash'), 500);
+      }
+
+      // Learning feedback: pulse the correct country's own shape so the
+      // player immediately sees where the flag should have gone
+      const correctPath = svg.querySelector(`.country-path[data-id="${countryId}"]`);
+      if (correctPath && !correctPath.classList.contains('filled')) {
+        correctPath.classList.add('correct-hint');
+        setTimeout(() => correctPath.classList.remove('correct-hint'), 1400);
       }
 
       // Flash slot marker
