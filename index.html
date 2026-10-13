@@ -32,6 +32,7 @@
       --ink: #3B2C35;
       --ink-soft: #92818B;
       --card: #FFFFFF;
+      --panel: #FFFFFF;
       --pink: #FF7BAC;
       --orange: #FF9F43;
       --yellow: #FFD43B;
@@ -47,6 +48,35 @@
       --border-pop: 3px solid var(--ink);
       --bouncy: cubic-bezier(0.34, 1.56, 0.64, 1);
       --font-candy: "Comic Sans MS", "Chalkboard SE", "Yuanti SC", "YouYuan", "PingFang SC", "Microsoft YaHei", sans-serif;
+      /* self-drawn map palette */
+      --ocean-top: #D8EFFF;
+      --ocean-bottom: #BFE3F9;
+      --ocean-dot: rgba(255, 255, 255, 0.35);
+      --land-fill: rgba(255, 255, 255, 0.45);
+      --land-stroke: #1C7ED6;
+      --land-hover: rgba(77, 171, 247, 0.38);
+      --silhouette-fill: rgba(255, 255, 255, 0.55);
+      --silhouette-stroke: rgba(59, 44, 53, 0.22);
+    }
+
+    /* ===== Night Candy (dark mode) ===== */
+    :root[data-theme='dark'] {
+      --bg: #1F1B2E;
+      --bg-deep: #181428;
+      --ink: #F3EDFF;
+      --ink-soft: #A79CC6;
+      --card: #2A2542;
+      --panel: #2A2542;
+      --shadow-pop: 0 5px 0 rgba(0, 0, 0, 0.45);
+      --shadow-pop-lg: 0 8px 0 rgba(0, 0, 0, 0.5);
+      --ocean-top: #262244;
+      --ocean-bottom: #1B1830;
+      --ocean-dot: rgba(255, 255, 255, 0.10);
+      --land-fill: rgba(139, 127, 212, 0.16);
+      --land-stroke: #8B7FD4;
+      --land-hover: rgba(139, 127, 212, 0.35);
+      --silhouette-fill: rgba(255, 255, 255, 0.07);
+      --silhouette-stroke: rgba(167, 156, 198, 0.28);
     }
 
     /* ===== Base Styles ===== */
@@ -84,7 +114,7 @@
       left: 0;
       right: 0;
       height: 60px;
-      background: #FFFFFF;
+      background: var(--panel);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -113,6 +143,20 @@
     .nav-spacer {
       width: 60px;
     }
+
+    .theme-toggle {
+      border: 2.5px solid var(--ink);
+      background: var(--yellow);
+      color: var(--ink);
+      border-radius: 12px;
+      width: 36px;
+      height: 36px;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 3px 0 rgba(59, 44, 53, 0.2);
+      transition: transform 0.15s var(--bouncy);
+    }
+    .theme-toggle:active { transform: translateY(2px); }
 
     /* ===== Home Page ===== */
     .home-content {
@@ -319,7 +363,7 @@
       width: 42px;
       height: 42px;
       border-radius: 14px;
-      background: #FFFFFF;
+      background: var(--panel);
       border: 2.5px solid var(--ink);
       font-size: 1.4rem;
       flex-shrink: 0;
@@ -352,7 +396,7 @@
       padding: 5px 12px;
       border-radius: 100px;
       border: 2.5px solid var(--ink);
-      background: #FFFFFF;
+      background: var(--panel);
       color: var(--ink);
       font-size: 0.78rem;
       font-weight: 700;
@@ -387,7 +431,7 @@
       gap: 6px;
       padding: 5px 14px;
       border-radius: 100px;
-      background: #FFFFFF;
+      background: var(--panel);
       border: 2px solid rgba(59, 44, 53, 0.25);
       font-size: 0.8rem;
       color: var(--ink-soft);
@@ -446,7 +490,7 @@
       pointer-events: none;
       transform: scale(1.15) rotate(-3deg);
       opacity: 0.95;
-      background: #FFFFFF;
+      background: var(--panel);
       border: 3px solid var(--ink);
       border-radius: 14px;
       padding: 6px 14px;
@@ -522,7 +566,7 @@
       align-items: center;
       justify-content: space-between;
       padding: 0 20px;
-      background: #FFFFFF;
+      background: var(--panel);
       border: var(--border-pop);
       border-radius: 100px;
       z-index: 10;
@@ -588,7 +632,7 @@
 
     .game-header .hint-toggle.off {
       opacity: 0.45;
-      background: #FFFFFF;
+      background: var(--panel);
     }
 
     .game-header .hint-toggle:hover {
@@ -603,16 +647,16 @@
       touch-action: none;
       /* candy ocean: no tile layer, fully self-drawn map */
       background:
-        radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.35) 2.5px, transparent 3px),
-        radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.22) 2px, transparent 2.5px),
-        linear-gradient(180deg, #D8EFFF 0%, #BFE3F9 100%);
+        radial-gradient(circle at 25% 25%, var(--ocean-dot) 2.5px, transparent 3px),
+        radial-gradient(circle at 75% 75%, var(--ocean-dot) 2px, transparent 2.5px),
+        linear-gradient(180deg, var(--ocean-top) 0%, var(--ocean-bottom) 100%);
       background-size: 64px 64px, 64px 64px, 100% 100%;
     }
 
     /* inert silhouettes of the non-active continents */
     .country-bg {
-      fill: rgba(255, 255, 255, 0.55);
-      stroke: rgba(59, 44, 53, 0.22);
+      fill: var(--silhouette-fill);
+      stroke: var(--silhouette-stroke);
       stroke-width: 1;
       stroke-linejoin: round;
       pointer-events: none;
@@ -623,7 +667,7 @@
       width: 34px;
       height: 34px;
       border-radius: 50%;
-      background: #FFFFFF;
+      background: var(--panel);
       border: 3px solid var(--orange);
       display: flex;
       align-items: center;
@@ -656,7 +700,7 @@
     .task-panel {
       width: 280px;
       flex-shrink: 0;
-      background: #FFFFFF;
+      background: var(--panel);
       border-right: var(--border-pop);
       display: flex;
       flex-direction: column;
@@ -813,7 +857,7 @@
       flex-direction: column;
       align-items: center;
       gap: 6px;
-      background: #FFFFFF;
+      background: var(--panel);
       border: var(--border-pop);
       border-radius: 18px;
       padding: 8px;
@@ -875,8 +919,8 @@
     }
 
     .country-path {
-      fill: rgba(255, 255, 255, 0.45);
-      stroke: #1C7ED6;
+      fill: var(--land-fill);
+      stroke: var(--land-stroke);
       stroke-width: 1.8;
       stroke-linejoin: round;
       cursor: pointer;
@@ -885,8 +929,8 @@
     }
 
     .country-path:hover {
-      fill: rgba(77, 171, 247, 0.38);
-      stroke: #1C7ED6;
+      fill: var(--land-hover);
+      stroke: var(--land-stroke);
       stroke-width: 2.6;
     }
 
@@ -936,7 +980,7 @@
       width: 100%;
       border-radius: 28px;
       overflow: hidden;
-      background: #FFFFFF;
+      background: var(--panel);
       border: var(--border-pop);
       box-shadow: var(--shadow-pop-lg);
     }
@@ -1005,7 +1049,7 @@
       width: 76px;
       height: 76px;
       border-radius: 50%;
-      background: #FFFFFF;
+      background: var(--panel);
       border: 3px solid var(--ink);
       display: flex;
       align-items: center;
@@ -1161,7 +1205,7 @@
     }
 
     .btn-home {
-      background: #FFFFFF;
+      background: var(--panel);
       color: var(--ink);
     }
 
@@ -1336,6 +1380,7 @@
       </svg>
       世界插旗挑战
     </div>
+    <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" title="日间/夜间模式">🌙</button>
     <div class="nav-spacer"></div>
   </nav>
 
@@ -1373,6 +1418,7 @@
           <div class="timer-display">⏱ <span id="game-timer">00:00</span></div>
           <button class="hint-toggle" id="pause-btn" onclick="togglePause()" title="暂停/继续">⏸</button>
           <button class="hint-toggle" id="hint-toggle" onclick="toggleHints()" title="显示/隐藏提示">💡</button>
+          <button class="hint-toggle" id="sound-btn" onclick="toggleSound()" title="音效开关">🔊</button>
         </div>
       </div>
       <div class="map-container" id="map-container">
@@ -1440,13 +1486,43 @@
       document.getElementById('page-' + id).classList.add('visible');
     }
 
+    // ===== Theme (light candy / night candy) =====
+    function isDarkTheme() {
+      return document.documentElement.getAttribute('data-theme') === 'dark';
+    }
+    function syncThemeBtn() {
+      const btn = document.getElementById('theme-btn');
+      if (btn) btn.textContent = isDarkTheme() ? '🌞' : '🌙';
+    }
+    function toggleTheme() {
+      const dark = !isDarkTheme();
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      try { localStorage.setItem('flagGameTheme', dark ? 'dark' : 'light'); } catch (e) {}
+      syncThemeBtn();
+    }
+
     // ===== Sound Effects (Web Audio API) =====
     let audioCtx = null;
+    let soundMuted = (() => {
+      try { return localStorage.getItem('flagGameSoundMuted') === '1'; } catch (e) { return false; }
+    })();
+
+    function toggleSound() {
+      soundMuted = !soundMuted;
+      try { localStorage.setItem('flagGameSoundMuted', soundMuted ? '1' : '0'); } catch (e) {}
+      const btn = document.getElementById('sound-btn');
+      if (btn) {
+        btn.textContent = soundMuted ? '🔇' : '🔊';
+        btn.classList.toggle('off', soundMuted);
+      }
+    }
+
     function getAudioCtx() {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       return audioCtx;
     }
     function playSound(type) {
+      if (soundMuted) return;
       try {
         const ctx = getAudioCtx();
         if (type === 'correct') {
@@ -1650,6 +1726,18 @@
 
     // ===== Initialize =====
     renderContinentGrid();
+    (function restoreSoundBtn() {
+      const btn = document.getElementById('sound-btn');
+      if (btn && soundMuted) { btn.textContent = '🔇'; btn.classList.add('off'); }
+    })();
+    (function restoreTheme() {
+      try {
+        if (localStorage.getItem('flagGameTheme') === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      } catch (e) {}
+      syncThemeBtn();
+    })();
 
     // ===== Leaflet Map Instance =====
     let leafletMap = null;
@@ -2287,6 +2375,106 @@
     }
 
     // ===== Result Page =====
+
+    /** draw a rounded rect path on a canvas context */
+    function rr(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
+
+    const CANDY_FONT = '"Comic Sans MS","Chalkboard SE","Yuanti SC","YouYuan","PingFang SC","Microsoft YaHei",sans-serif';
+
+    /** render the finished run as a shareable PNG and download it */
+    function shareResultCard() {
+      const total = gameState.countries.length;
+      const score = gameState.score;
+      const wrongCount = gameState.errors.length;
+      const elapsed = getElapsedTime();
+      const continent = CONTINENTS[gameState.continent] || { emoji: '🌍', name: '' };
+      const W = 750, H = 1000;
+      const c = document.createElement('canvas');
+      c.width = W; c.height = H;
+      const ctx = c.getContext('2d');
+
+      // candy background + confetti dots
+      ctx.fillStyle = '#FFF8EC';
+      ctx.fillRect(0, 0, W, H);
+      const candy = ['#FF7BAC', '#FF9F43', '#FFD43B', '#51CF66', '#4DABF7', '#9775FA'];
+      let seed = 42;
+      const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+      for (let i = 0; i < 40; i++) {
+        ctx.fillStyle = candy[Math.floor(rnd() * candy.length)] + '55';
+        ctx.beginPath();
+        ctx.arc(rnd() * W, rnd() * H, 6 + rnd() * 14, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#3B2C35';
+      ctx.font = `bold 52px ${CANDY_FONT}`;
+      ctx.fillText('🚩 世界插旗挑战', W / 2, 110);
+
+      ctx.font = `bold 34px ${CANDY_FONT}`;
+      ctx.fillText(`${continent.emoji} ${continent.name}${gameState.fullContinent ? ' · 全部国家' : ''}`, W / 2, 175);
+
+      // big score
+      ctx.font = `bold 150px ${CANDY_FONT}`;
+      ctx.fillStyle = '#F59E0B';
+      ctx.fillText(`${score}/${total}`, W / 2, 360);
+
+      // score ring bar
+      const pct = total ? score / total : 0;
+      ctx.lineWidth = 18; ctx.lineCap = 'round';
+      ctx.strokeStyle = 'rgba(59,44,53,0.15)';
+      ctx.beginPath(); ctx.moveTo(120, 410); ctx.lineTo(W - 120, 410); ctx.stroke();
+      ctx.strokeStyle = '#FF9F43';
+      ctx.beginPath(); ctx.moveTo(120, 410); ctx.lineTo(120 + (W - 240) * pct, 410); ctx.stroke();
+
+      // stat blocks
+      const blocks = [
+        ['✅ 正确', String(score), '#37B24D'],
+        ['❌ 失误', String(wrongCount), '#FF6B6B'],
+        ['⏱ 用时', formatTimeSec(elapsed), '#E67700']
+      ];
+      blocks.forEach(([label, value, color], i) => {
+        const bx = 90 + i * 200, by = 470, bw = 170, bh = 150;
+        ctx.fillStyle = '#FFFFFF';
+        ctx.strokeStyle = '#3B2C35'; ctx.lineWidth = 4;
+        rr(ctx, bx, by, bw, bh, 22); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = color;
+        ctx.font = `bold 46px ${CANDY_FONT}`;
+        ctx.fillText(value, bx + bw / 2, by + 85);
+        ctx.fillStyle = '#92818B';
+        ctx.font = `26px ${CANDY_FONT}`;
+        ctx.fillText(label, bx + bw / 2, by + 125);
+      });
+
+      // verdict
+      const verdict = wrongCount === 0 ? '💯 完美通关!' : (pct >= 0.8 ? '👍 表现不错!' : '💪 再接再厉!');
+      ctx.fillStyle = '#3B2C35';
+      ctx.font = `bold 40px ${CANDY_FONT}`;
+      ctx.fillText(verdict, W / 2, 720);
+
+      // flag wall of the run
+      const flags = gameState.countries.map(x => x.flag).join('');
+      ctx.font = `38px ${CANDY_FONT}`;
+      ctx.fillText(flags.slice(0, 24), W / 2, 790);
+      if (flags.length > 24) ctx.fillText(flags.slice(24, 48), W / 2, 845);
+
+      ctx.fillStyle = '#92818B';
+      ctx.font = `24px ${CANDY_FONT}`;
+      ctx.fillText('来挑战我 → king33yoyo.github.io/flag-game-web', W / 2, 930);
+
+      const a = document.createElement('a');
+      a.download = `插旗成绩-${continent.name}-${score}of${total}.png`;
+      a.href = c.toDataURL('image/png');
+      a.click();
+    }
 
     function showResult() {
       const total = gameState.countries.length;
